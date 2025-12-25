@@ -7,3 +7,14 @@ To become the global standard for Anonymous messaging. A space where words are h
 # Team
 Project lead and frontend--Ikpesu oghenegare
 Full-stack development-- Chukwu Chibueze Michael
+# Core Principles
+- Anonymity
+- Safety through moderation
+- Global accessibility
+- Positive community
+
+  # Features
+- Anonymous message sonding
+- Unique user shadow 1inks
+- Multi-platform accossibility
+- Dark/light theme support
