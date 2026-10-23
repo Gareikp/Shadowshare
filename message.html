@@ -6,6 +6,11 @@
     <title>Send a Shadow Message</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/firebase.js" defer></script>
 </head>
 <body>
     <nav class="navbar">
@@ -18,7 +23,7 @@
                 <a href="index.html">Home</a>
                 <a href="message.html">Send Message</a>
                 <a href="dashboard.html">Dashboard</a>
-                <a href="signup.html" class="nav-btn">Sign Up</a>
+                <a href="login.html" class="nav-btn">Log In</a>
             </div>
         </div>
     </nav>
@@ -28,24 +33,22 @@
             <div class="message-hero">
                 <p class="eyebrow">Anonymous feedback</p>
                 <h1>Send a shadow message</h1>
-                <p class="message-intro">A safe space where people can share honest words without exposing their identity.</p>
+                <p id="recipient-username" class="message-intro">Sending to your shadow recipient.</p>
             </div>
 
-            <form class="shadow-form">
-                <label for="user-name">Your name (optional)</label>
-                <input id="user-name" type="text" placeholder="Anonymous friend" />
+            <form id="message-form" class="shadow-form">
+                <input id="recipientUsername" type="hidden" name="recipientUsername" value="">
 
                 <label for="message">Your message</label>
-                <textarea id="message" rows="7" placeholder="Write something kind, honest, or encouraging..."></textarea>
+                <textarea id="message" name="message" rows="7" placeholder="Write something kind, honest, or encouraging..."></textarea>
 
                 <div class="form-actions">
                     <button type="submit" class="cta-btn primary">
                         <i class="fas fa-paper-plane"></i> Send anonymously
                     </button>
-                    <button type="button" class="cta-btn secondary" id="preview-message">
-                        Preview
-                    </button>
                 </div>
+
+                <p id="message-status" class="form-status"></p>
             </form>
         </div>
     </main>

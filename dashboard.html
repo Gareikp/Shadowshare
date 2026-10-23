@@ -6,6 +6,11 @@
     <title>ShadowShare Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="js/firebase.js" defer></script>
 </head>
 <body>
     <nav class="navbar">
@@ -18,7 +23,7 @@
                 <a href="index.html">Home</a>
                 <a href="message.html">Send Message</a>
                 <a href="dashboard.html">Dashboard</a>
-                <a href="signup.html" class="nav-btn">Profile</a>
+                <a href="login.html" class="nav-btn">Log In</a>
             </div>
         </div>
     </nav>
@@ -30,61 +35,33 @@
                     <p class="eyebrow">Your shadowbox</p>
                     <h1>Anonymous messages</h1>
                 </div>
-                <a href="message.html" class="cta-btn primary">
-                    <i class="fas fa-paper-plane"></i> Share your link
-                </a>
+                <button id="logout-btn" class="cta-btn secondary" type="button">Log out</button>
             </header>
 
             <section class="stats-grid">
                 <article class="stat-card">
                     <span class="stat-label">Total messages</span>
-                    <strong>128</strong>
+                    <strong id="message-count">0</strong>
                 </article>
                 <article class="stat-card">
                     <span class="stat-label">Unread</span>
-                    <strong>16</strong>
+                    <strong id="unread-count">0</strong>
                 </article>
                 <article class="stat-card">
-                    <span class="stat-label">This week</span>
-                    <strong>34</strong>
-                </article>
-                <article class="stat-card">
-                    <span class="stat-label">Safety flags</span>
-                    <strong>3</strong>
+                    <span class="stat-label">Profile</span>
+                    <strong id="user-handle">--</strong>
                 </article>
             </section>
 
             <section class="dashboard-panel">
                 <div class="panel-header">
                     <h2>Recent Shadows</h2>
-                    <button class="filter-btn">Filter</button>
+                    <a href="message.html?user=yourname" class="filter-btn">Share your link</a>
                 </div>
 
-                <div class="message-list">
-                    <article class="message-item unread">
-                        <div class="message-topline">
-                            <span class="tag">New</span>
-                            <span class="time">2h ago</span>
-                        </div>
-                        <p>"You have a way of making people feel safe when they speak. Keep going."</p>
-                    </article>
-
-                    <article class="message-item">
-                        <div class="message-topline">
-                            <span class="tag subtle">Anonymous</span>
-                            <span class="time">Yesterday</span>
-                        </div>
-                        <p>"Your honesty is rare and refreshing. The kind of energy people should hold onto."</p>
-                    </article>
-
-                    <article class="message-item">
-                        <div class="message-topline">
-                            <span class="tag subtle">Anonymous</span>
-                            <span class="time">3 days ago</span>
-                        </div>
-                        <p>"The idea behind ShadowShare feels both brave and necessary. Keep building with care."</p>
-                    </article>
-                </div>
+                <p id="dashboard-status" class="dashboard-status">Loading your inbox...</p>
+                <div id="dashboard-empty" class="empty-state" hidden>No messages yet. Share your Shadow link to start receiving messages.</div>
+                <div id="dashboard-message-list" class="message-list"></div>
             </section>
         </div>
     </main>
