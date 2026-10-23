@@ -6,14 +6,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const copyBtn = document.querySelector('.copy-btn');
     if (copyBtn) {
+        const originalHTML = copyBtn.innerHTML;
+        const linkText = copyBtn.dataset.copyText || 'shadowshare.site/yourname';
+
         copyBtn.addEventListener('click', async () => {
-            const linkText = 'shadowshare.site/yourname';
             try {
                 await navigator.clipboard.writeText(linkText);
-                const original = copyBtn.innerHTML;
                 copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
                 setTimeout(() => {
-                    copyBtn.innerHTML = original;
+                    copyBtn.innerHTML = originalHTML;
                 }, 2000);
             } catch (error) {
                 copyBtn.textContent = 'Copy unavailable';
@@ -31,7 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            alert(`Preview: ${text.slice(0, 120)}${text.length > 120 ? '...' : ''}`);
+            const previewText = text.length > 120 ? `${text.slice(0, 120)}...` : text;
+            alert(`Preview: ${previewText}`);
         });
     }
 
@@ -39,20 +41,28 @@ document.addEventListener('DOMContentLoaded', () => {
     if (form) {
         form.addEventListener('submit', (event) => {
             event.preventDefault();
-            const message = form.querySelector('#message')?.value.trim();
+
+            const messageInput = form.querySelector('#message');
+            const message = messageInput?.value.trim();
+
             if (!message) {
-                form.querySelector('#message')?.focus();
+                messageInput?.focus();
                 return;
             }
 
-            const button = form.querySelector('button[type="submit"]');
-            const originalText = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-check"></i> Sent anonymously';
-            button.disabled = true;
+            const submitButton = form.querySelector('button[type="submit"]');
+            if (!submitButton) {
+                form.reset();
+                return;
+            }
+
+            const originalText = submitButton.innerHTML;
+            submitButton.innerHTML = '<i class="fas fa-check"></i> Sent anonymously';
+            submitButton.disabled = true;
 
             setTimeout(() => {
-                button.innerHTML = originalText;
-                button.disabled = false;
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
                 form.reset();
             }, 1800);
         });
