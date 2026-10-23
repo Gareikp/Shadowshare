@@ -167,6 +167,13 @@ body {
     position: absolute;
     inset: 0;
     background: radial-gradient(circle at 20% 30%, var(--accent-glow) 0%, transparent 50%);
+    z-index: 0;
+}
+
+.hero-container,
+.hero-text {
+    position: relative;
+    z-index: 1;
 }
 
 .hero-title,
