@@ -1,71 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Send a Shadow Message</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="js/firebase.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Send a Shadow Message</title>
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script type="module" src="js/firebase-config.js"></script>
+  <script type="module" src="js/firebase.js"></script>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="logo">
-                <i class="fas fa-moon"></i>
-                <span>ShadowShare</span>
-            </div>
-            <div class="nav-links">
-                <a href="index.html">Home</a>
-                <a href="message.html">Send Message</a>
-                <a href="dashboard.html">Dashboard</a>
-                <a href="login.html" class="nav-btn">Log In</a>
-            </div>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <i class="fas fa-moon"></i>
+        <span>ShadowShare</span>
+      </div>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="login.html" class="nav-btn">Log In</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="section message-page-shell">
+    <div class="container message-card">
+      <div class="message-hero">
+        <p class="eyebrow">Anonymous feedback</p>
+        <h1>Send a shadow message</h1>
+        <p id="recipient-username" class="message-intro">Loading recipient...</p>
+      </div>
+
+      <form id="message-form" class="shadow-form">
+        <input id="recipientUsername" type="hidden" name="recipientUsername">
+
+        <label for="message">Your message</label>
+        <textarea id="message" name="message" rows="7" placeholder="Write something kind, honest, or encouraging..." required></textarea>
+
+        <div class="form-actions">
+          <button type="submit" class="cta-btn primary">
+            <i class="fas fa-paper-plane"></i> Send anonymously
+          </button>
         </div>
-    </nav>
 
-    <main class="section message-page-shell">
-        <div class="container message-card">
-            <div class="message-hero">
-                <p class="eyebrow">Anonymous feedback</p>
-                <h1>Send a shadow message</h1>
-                <p id="recipient-username" class="message-intro">Sending to your shadow recipient.</p>
-            </div>
+        <p id="message-status" class="form-status"></p>
+      </form>
+    </div>
+  </main>
 
-            <form id="message-form" class="shadow-form">
-                <input id="recipientUsername" type="hidden" name="recipientUsername" value="">
-
-                <label for="message">Your message</label>
-                <textarea id="message" name="message" rows="7" placeholder="Write something kind, honest, or encouraging..."></textarea>
-
-                <div class="form-actions">
-                    <button type="submit" class="cta-btn primary">
-                        <i class="fas fa-paper-plane"></i> Send anonymously
-                    </button>
-                </div>
-
-                <p id="message-status" class="form-status"></p>
-            </form>
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-logo">
+          <i class="fas fa-moon"></i>
+          <span>ShadowShare</span>
         </div>
-    </main>
+        <p class="footer-tagline">Where Shadows Speak</p>
+        <p class="copyright">&copy; <span id="current-year">2024</span> ShadowShare. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
 
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-logo">
-                    <i class="fas fa-moon"></i>
-                    <span>ShadowShare</span>
-                </div>
-                <p class="footer-tagline">Where Shadows Speak</p>
-                <p class="copyright">&copy; <span id="current-year">2024</span> ShadowShare. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
-
-    <script src="js/main.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>

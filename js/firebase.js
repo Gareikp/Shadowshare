@@ -1,18 +1,18 @@
+import { auth, db } from "./firebase-config.js";
+
 (function () {
-  const firebaseApp = firebase.apps.length ? firebase.apps[0] : firebase.initializeApp(window.firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-
-  if (auth.setPersistence) {
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-  }
-
   const normalizeUsername = (value) => {
     return String(value || "")
       .trim()
       .toLowerCase()
       .replace(/\s+/g, "-")
       .replace(/[^a-z0-9-_]/g, "");
+  };
+
+  const displayStatus = (node, message, isError = false) => {
+    if (!node) return;
+    node.textContent = message;
+    node.classList.toggle("error", isError);
   };
 
   const getCurrentUserProfile = async (uid) => {
@@ -37,7 +37,7 @@
       email: payload.email,
       username: normalizeUsername(payload.username),
       displayName: payload.displayName || payload.username || "Shadow User",
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: new Date()
     };
 
     await db.collection("users").doc(uid).set(profile, { merge: true });
@@ -53,25 +53,19 @@
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const formData = new FormData(form);
-      const displayName = String(formData.get("displayName") || "").trim();
-      const email = String(formData.get("email") || "").trim();
-      const username = normalizeUsername(formData.get("username"));
-      const password = String(formData.get("password") || "");
+
+      const displayName = document.getElementById("displayName").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const username = normalizeUsername(document.getElementById("username").value);
+      const password = document.getElementById("password").value;
 
       if (!displayName || !email || !username || password.length < 6) {
-        if (messageNode) {
-          messageNode.textContent = "Please enter a valid display name, email, username, and a password with at least 6 characters.";
-          messageNode.classList.add("error");
-        }
+        displayStatus(messageNode, "Please enter a valid display name, email, username, and a password with at least 6 characters.", true);
         return;
       }
 
       try {
-        if (messageNode) {
-          messageNode.textContent = "Creating your account...";
-          messageNode.classList.remove("error");
-        }
+        displayStatus(messageNode, "Creating account...", false);
 
         const usernameExists = await db.collection("usernames").doc(username).get();
         if (usernameExists.exists) {
@@ -79,25 +73,12 @@
         }
 
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        await createUserProfile(userCredential.user.uid, {
-          email,
-          username,
-          displayName
-        });
+        await createUserProfile(userCredential.user.uid, { email, username, displayName });
 
-        if (messageNode) {
-          messageNode.textContent = "Account created! Redirecting to your dashboard...";
-          messageNode.classList.remove("error");
-        }
-
-        setTimeout(() => {
-          window.location.href = "dashboard.html";
-        }, 800);
+        displayStatus(messageNode, "Account created! Redirecting...", false);
+        setTimeout(() => window.location.href = "dashboard.html", 800);
       } catch (error) {
-        if (messageNode) {
-          messageNode.textContent = error.message || "Unable to create account right now.";
-          messageNode.classList.add("error");
-        }
+        displayStatus(messageNode, error.message || "Unable to create account right now.", true);
       }
     });
   }
@@ -110,37 +91,22 @@
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const formData = new FormData(form);
-      const email = String(formData.get("email") || "").trim();
-      const password = String(formData.get("password") || "");
+
+      const email = document.getElementById("login-email").value.trim();
+      const password = document.getElementById("login-password").value;
 
       if (!email || !password) {
-        if (messageNode) {
-          messageNode.textContent = "Please enter your email and password.";
-          messageNode.classList.add("error");
-        }
+        displayStatus(messageNode, "Please enter your email and password.", true);
         return;
       }
 
       try {
-        if (messageNode) {
-          messageNode.textContent = "Signing you in...";
-          messageNode.classList.remove("error");
-        }
-
+        displayStatus(messageNode, "Signing you in...", false);
         await auth.signInWithEmailAndPassword(email, password);
-        if (messageNode) {
-          messageNode.textContent = "Logged in successfully.";
-        }
-
-        setTimeout(() => {
-          window.location.href = "dashboard.html";
-        }, 600);
+        displayStatus(messageNode, "Logged in successfully.", false);
+        setTimeout(() => window.location.href = "dashboard.html", 600);
       } catch (error) {
-        if (messageNode) {
-          messageNode.textContent = error.message || "Incorrect email or password.";
-          messageNode.classList.add("error");
-        }
+        displayStatus(messageNode, error.message || "Incorrect email or password.", true);
       }
     });
   }
@@ -151,108 +117,90 @@
 
     const recipientNode = document.getElementById("recipient-username");
     const statusNode = document.getElementById("message-status");
-    const recipientParam = new URLSearchParams(window.location.search).get("user");
+    const params = new URLSearchParams(window.location.search);
+    const recipientValue = params.get("user") || "your-shadow";
+    const recipientUser = normalizeUsername(recipientValue);
 
     if (recipientNode) {
-      const username = recipientParam || "your-shadow";
-      recipientNode.textContent = `Sending to @${normalizeUsername(username)}`;
-      document.getElementById("recipientUsername")?.value = normalizeUsername(username);
+      recipientNode.textContent = `Sending to @${recipientUser}`;
+    }
+
+    const hiddenRecipient = document.getElementById("recipientUsername");
+    if (hiddenRecipient) {
+      hiddenRecipient.value = recipientUser;
     }
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
 
-      const recipientUsername = normalizeUsername(document.getElementById("recipientUsername")?.value || recipientParam || "");
-      const messageText = document.getElementById("message")?.value.trim() || "";
+      const recipient = normalizeUsername(document.getElementById("recipientUsername")?.value || "");
+      const messageText = document.getElementById("message").value.trim();
 
-      if (!recipientUsername) {
-        if (statusNode) {
-          statusNode.textContent = "A user name is required to send a message.";
-          statusNode.classList.add("error");
-        }
+      if (!recipient) {
+        displayStatus(statusNode, "A recipient username is required.", true);
         return;
       }
 
       if (!messageText) {
-        if (statusNode) {
-          statusNode.textContent = "Please write a message before sending.";
-          statusNode.classList.add("error");
-        }
+        displayStatus(statusNode, "Please write a message before sending.", true);
         return;
       }
 
       try {
-        if (statusNode) {
-          statusNode.textContent = "Sending your message...";
-          statusNode.classList.remove("error");
-        }
+        displayStatus(statusNode, "Sending message...", false);
 
-        const recipientUid = await resolveUsernameToUid(recipientUsername);
+        const recipientUid = await resolveUsernameToUid(recipient);
         if (!recipientUid) {
           throw new Error("That user has not created a ShadowShare profile yet.");
         }
 
         await db.collection("messages").add({
           recipientUid,
-          recipientUsername,
+          recipientUsername: recipient,
           senderUid: auth.currentUser ? auth.currentUser.uid : null,
-          senderName: auth.currentUser ? (auth.currentUser.displayName || "Anonymous") : "Anonymous",
+          senderName: auth.currentUser ? auth.currentUser.displayName || "Anonymous" : "Anonymous",
           message: messageText,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          createdAt: new Date(),
           isAnonymous: true,
           status: "new"
         });
 
-        if (statusNode) {
-          statusNode.textContent = "Your message was sent successfully.";
-          statusNode.classList.remove("error");
-        }
-
+        displayStatus(statusNode, "Message sent successfully.", false);
         form.reset();
-        const mainField = document.getElementById("message");
-        if (mainField) mainField.focus();
       } catch (error) {
-        if (statusNode) {
-          statusNode.textContent = error.message || "Something went wrong while sending the message.";
-          statusNode.classList.add("error");
-        }
+        displayStatus(statusNode, error.message || "Unable to send message.", true);
       }
     });
   }
 
   async function renderDashboard() {
-    const dashboardList = document.getElementById("dashboard-message-list");
-    const emptyState = document.getElementById("dashboard-empty");
+    const listNode = document.getElementById("dashboard-message-list");
+    const emptyNode = document.getElementById("dashboard-empty");
     const statusNode = document.getElementById("dashboard-status");
-    const logoutButton = document.getElementById("logout-btn");
+    const logoutBtn = document.getElementById("logout-btn");
 
-    if (!dashboardList) return;
+    if (!listNode) return;
 
     auth.onAuthStateChanged(async (user) => {
       if (!user) {
-        if (statusNode) {
-          statusNode.textContent = "You are not signed in yet.";
+        if (statusNode) statusNode.textContent = "You are not signed in.";
+        if (emptyNode) {
+          emptyNode.hidden = false;
+          emptyNode.textContent = "Please log in to view your inbox.";
         }
-        if (emptyState) {
-          emptyState.hidden = false;
-          emptyState.textContent = "Sign in to view your anonymous messages.";
-        }
-        if (logoutButton) logoutButton.hidden = true;
-        dashboardList.innerHTML = "";
+        if (logoutBtn) logoutBtn.hidden = true;
+        listNode.innerHTML = "";
         return;
-      }
-
-      if (statusNode) {
-        statusNode.textContent = "Loading your messages...";
       }
 
       try {
         const profile = await getCurrentUserProfile(user.uid);
-        const username = profile && profile.username ? `@${profile.username}` : "your inbox";
+        const handle = profile && profile.username ? `@${profile.username}` : "@your-inbox";
 
-        if (statusNode) {
-          statusNode.textContent = `Welcome ${username}`;
-        }
+        const handleNode = document.getElementById("user-handle");
+        if (handleNode) handleNode.textContent = handle;
+
+        if (statusNode) statusNode.textContent = "Loading your messages...";
 
         const snapshot = await db
           .collection("messages")
@@ -261,51 +209,43 @@
           .get();
 
         if (snapshot.empty) {
-          if (emptyState) {
-            emptyState.hidden = false;
-            emptyState.textContent = "No messages yet. Share your shadow link and start receiving feedback.";
+          if (emptyNode) {
+            emptyNode.hidden = false;
+            emptyNode.textContent = "No messages yet. Share your shadow link to start receiving feedback.";
           }
-          dashboardList.innerHTML = "";
+          listNode.innerHTML = "";
           return;
         }
 
-        if (emptyState) emptyState.hidden = true;
+        if (emptyNode) emptyNode.hidden = true;
+        listNode.innerHTML = "";
 
-        dashboardList.innerHTML = "";
         snapshot.forEach((doc) => {
           const data = doc.data();
-          const item = document.createElement("article");
-          item.className = "message-item";
+          const article = document.createElement("article");
+          article.className = "message-item";
 
           const createdAt = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate() : new Date();
-          const dateLabel = createdAt.toLocaleDateString(undefined, {
-            month: "short",
-            day: "numeric",
-            year: "numeric"
-          });
-
-          item.innerHTML = `
+          article.innerHTML = `
             <div class="message-topline">
               <span class="tag subtle">Anonymous</span>
-              <span class="time">${dateLabel}</span>
+              <span class="time">${createdAt.toLocaleDateString()}</span>
             </div>
             <p>"${(data.message || "").replace(/</g, "&lt;").replace(/>/g, "&gt;")}"</p>
           `;
-          dashboardList.appendChild(item);
+          listNode.appendChild(article);
         });
       } catch (error) {
-        if (statusNode) {
-          statusNode.textContent = "Unable to load messages right now.";
-        }
-        if (emptyState) {
-          emptyState.hidden = false;
-          emptyState.textContent = error.message || "Please try again later.";
+        if (statusNode) statusNode.textContent = "Unable to load messages right now.";
+        if (emptyNode) {
+          emptyNode.hidden = false;
+          emptyNode.textContent = error.message || "Please try again later.";
         }
       }
     });
 
-    if (logoutButton) {
-      logoutButton.addEventListener("click", async () => {
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async () => {
         await auth.signOut();
         window.location.href = "login.html";
       });
@@ -319,7 +259,7 @@
     renderDashboard();
   });
 
-  window.shadowshareAuth = {
+  window.shadowshareFirebase = {
     auth,
     db,
     normalizeUsername,

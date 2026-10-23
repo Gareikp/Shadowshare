@@ -1,40 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log In | ShadowShare</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="js/firebase.js" defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log In | ShadowShare</title>
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script type="module" src="js/firebase-config.js"></script>
+  <script type="module" src="js/firebase.js"></script>
 </head>
 <body class="auth-page">
-    <div class="auth-shell">
-        <div class="auth-card">
-            <div class="auth-brand">
-                <i class="fas fa-moon"></i>
-                <span>ShadowShare</span>
-            </div>
-            <h1>Welcome back</h1>
-            <p class="auth-subtitle">Access your shadow inbox and respond to your anonymous messages.</p>
+  <div class="auth-shell">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <i class="fas fa-moon"></i>
+        <span>ShadowShare</span>
+      </div>
 
-            <form id="login-form" class="auth-form">
-                <label for="login-email">Email</label>
-                <input id="login-email" name="email" type="email" placeholder="you@example.com" required>
+      <h1>Welcome back</h1>
+      <p class="auth-subtitle">Access your shadow inbox and respond to your anonymous messages.</p>
 
-                <label for="login-password">Password</label>
-                <input id="login-password" name="password" type="password" placeholder="Your password" required>
+      <form id="login-form" class="auth-form">
+        <label for="login-email">Email</label>
+        <input id="login-email" name="email" type="email" placeholder="you@example.com" required>
 
-                <button type="submit" class="cta-btn primary auth-btn">Log in</button>
-            </form>
+        <label for="login-password">Password</label>
+        <input id="login-password" name="password" type="password" placeholder="Your password" required>
 
-            <p class="auth-meta">Need an account? <a href="signup.html">Sign up</a></p>
-            <p id="auth-message" class="auth-message"></p>
-        </div>
+        <button type="submit" class="cta-btn primary auth-btn">Log in</button>
+      </form>
+
+      <p class="auth-meta">Need an account? <a href="signup.html">Sign up</a></p>
+      <p id="auth-message" class="auth-message"></p>
     </div>
+  </div>
 </body>
 </html>
