@@ -1,11 +1,107 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>
-            My Shadowshare Dashboard</title>
-    </head>
-    <body>
-        <p>
-            This is where you will read your anonymous messages.</p>
-    </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShadowShare Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-moon"></i>
+                <span>ShadowShare</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="message.html">Send Message</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="signup.html" class="nav-btn">Profile</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="dashboard-shell section">
+        <div class="container">
+            <header class="dashboard-header">
+                <div>
+                    <p class="eyebrow">Your shadowbox</p>
+                    <h1>Anonymous messages</h1>
+                </div>
+                <a href="message.html" class="cta-btn primary">
+                    <i class="fas fa-paper-plane"></i> Share your link
+                </a>
+            </header>
+
+            <section class="stats-grid">
+                <article class="stat-card">
+                    <span class="stat-label">Total messages</span>
+                    <strong>128</strong>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-label">Unread</span>
+                    <strong>16</strong>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-label">This week</span>
+                    <strong>34</strong>
+                </article>
+                <article class="stat-card">
+                    <span class="stat-label">Safety flags</span>
+                    <strong>3</strong>
+                </article>
+            </section>
+
+            <section class="dashboard-panel">
+                <div class="panel-header">
+                    <h2>Recent Shadows</h2>
+                    <button class="filter-btn">Filter</button>
+                </div>
+
+                <div class="message-list">
+                    <article class="message-item unread">
+                        <div class="message-topline">
+                            <span class="tag">New</span>
+                            <span class="time">2h ago</span>
+                        </div>
+                        <p>"You have a way of making people feel safe when they speak. Keep going."</p>
+                    </article>
+
+                    <article class="message-item">
+                        <div class="message-topline">
+                            <span class="tag subtle">Anonymous</span>
+                            <span class="time">Yesterday</span>
+                        </div>
+                        <p>"Your honesty is rare and refreshing. The kind of energy people should hold onto."</p>
+                    </article>
+
+                    <article class="message-item">
+                        <div class="message-topline">
+                            <span class="tag subtle">Anonymous</span>
+                            <span class="time">3 days ago</span>
+                        </div>
+                        <p>"The idea behind ShadowShare feels both brave and necessary. Keep building with care."</p>
+                    </article>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-moon"></i>
+                    <span>ShadowShare</span>
+                </div>
+                <p class="footer-tagline">Where Shadows Speak</p>
+                <p class="copyright">&copy; <span id="current-year">2024</span> ShadowShare. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
 </html>

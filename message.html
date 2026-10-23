@@ -1,10 +1,68 @@
 <!DOCTYPE html>
-<html>
-    <head>
- <title> Send a anonymous messages | Shadowshare</title>
-    </head>
-    <body>
-        <h1>Send a shadow message </h1>
-        <p1>This is where visitors will type and send messages to you.</p1>
-    </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send a Shadow Message</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-moon"></i>
+                <span>ShadowShare</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="message.html">Send Message</a>
+                <a href="dashboard.html">Dashboard</a>
+                <a href="signup.html" class="nav-btn">Sign Up</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="section message-page-shell">
+        <div class="container message-card">
+            <div class="message-hero">
+                <p class="eyebrow">Anonymous feedback</p>
+                <h1>Send a shadow message</h1>
+                <p class="message-intro">A safe space where people can share honest words without exposing their identity.</p>
+            </div>
+
+            <form class="shadow-form">
+                <label for="user-name">Your name (optional)</label>
+                <input id="user-name" type="text" placeholder="Anonymous friend" />
+
+                <label for="message">Your message</label>
+                <textarea id="message" rows="7" placeholder="Write something kind, honest, or encouraging..."></textarea>
+
+                <div class="form-actions">
+                    <button type="submit" class="cta-btn primary">
+                        <i class="fas fa-paper-plane"></i> Send anonymously
+                    </button>
+                    <button type="button" class="cta-btn secondary" id="preview-message">
+                        Preview
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-moon"></i>
+                    <span>ShadowShare</span>
+                </div>
+                <p class="footer-tagline">Where Shadows Speak</p>
+                <p class="copyright">&copy; <span id="current-year">2024</span> ShadowShare. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
 </html>
