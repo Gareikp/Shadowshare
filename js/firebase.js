@@ -1,4 +1,22 @@
 import { auth, db } from "./firebase-config.js";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
+import {
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  addDoc,
+  collection,
+  query,
+  where,
+  orderBy,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 
 (function () {
   const normalizeUsername = (value) => {
@@ -17,18 +35,18 @@ import { auth, db } from "./firebase-config.js";
 
   const getCurrentUserProfile = async (uid) => {
     if (!uid) return null;
-    const profile = await db.collection("users").doc(uid).get();
-    return profile.exists ? profile.data() : null;
+    const ref = await getDoc(doc(db, "users", uid));
+    return ref.exists() ? ref.data() : null;
   };
 
   async function resolveUsernameToUid(username) {
     const normalized = normalizeUsername(username);
     if (!normalized) return null;
 
-    const usernameDoc = await db.collection("usernames").doc(normalized).get();
-    if (!usernameDoc.exists) return null;
+    const snapshot = await getDoc(doc(db, "usernames", normalized));
+    if (!snapshot.exists()) return null;
 
-    return usernameDoc.data().uid || null;
+    return snapshot.data().uid || null;
   }
 
   async function createUserProfile(uid, payload) {
@@ -37,11 +55,11 @@ import { auth, db } from "./firebase-config.js";
       email: payload.email,
       username: normalizeUsername(payload.username),
       displayName: payload.displayName || payload.username || "Shadow User",
-      createdAt: new Date()
+      createdAt: serverTimestamp()
     };
 
-    await db.collection("users").doc(uid).set(profile, { merge: true });
-    await db.collection("usernames").doc(profile.username).set({ uid }, { merge: true });
+    await setDoc(doc(db, "users", uid), profile, { merge: true });
+    await setDoc(doc(db, "usernames", profile.username), { uid, username: profile.username }, { merge: true });
     return profile;
   }
 
@@ -60,23 +78,29 @@ import { auth, db } from "./firebase-config.js";
       const password = document.getElementById("password").value;
 
       if (!displayName || !email || !username || password.length < 6) {
-        displayStatus(messageNode, "Please enter a valid display name, email, username, and a password with at least 6 characters.", true);
+        displayStatus(
+          messageNode,
+          "Please enter a valid display name, email, username, and a password with at least 6 characters.",
+          true
+        );
         return;
       }
 
       try {
         displayStatus(messageNode, "Creating account...", false);
 
-        const usernameExists = await db.collection("usernames").doc(username).get();
-        if (usernameExists.exists) {
+        const usernameDoc = await getDoc(doc(db, "usernames", username));
+        if (usernameDoc.exists()) {
           throw new Error("That username is already taken.");
         }
 
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         await createUserProfile(userCredential.user.uid, { email, username, displayName });
 
         displayStatus(messageNode, "Account created! Redirecting...", false);
-        setTimeout(() => window.location.href = "dashboard.html", 800);
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 800);
       } catch (error) {
         displayStatus(messageNode, error.message || "Unable to create account right now.", true);
       }
@@ -102,9 +126,11 @@ import { auth, db } from "./firebase-config.js";
 
       try {
         displayStatus(messageNode, "Signing you in...", false);
-        await auth.signInWithEmailAndPassword(email, password);
+        await signInWithEmailAndPassword(auth, email, password);
         displayStatus(messageNode, "Logged in successfully.", false);
-        setTimeout(() => window.location.href = "dashboard.html", 600);
+        setTimeout(() => {
+          window.location.href = "dashboard.html";
+        }, 600);
       } catch (error) {
         displayStatus(messageNode, error.message || "Incorrect email or password.", true);
       }
@@ -154,13 +180,13 @@ import { auth, db } from "./firebase-config.js";
           throw new Error("That user has not created a ShadowShare profile yet.");
         }
 
-        await db.collection("messages").add({
+        await addDoc(collection(db, "messages"), {
           recipientUid,
           recipientUsername: recipient,
           senderUid: auth.currentUser ? auth.currentUser.uid : null,
           senderName: auth.currentUser ? auth.currentUser.displayName || "Anonymous" : "Anonymous",
           message: messageText,
-          createdAt: new Date(),
+          createdAt: serverTimestamp(),
           isAnonymous: true,
           status: "new"
         });
@@ -181,7 +207,7 @@ import { auth, db } from "./firebase-config.js";
 
     if (!listNode) return;
 
-    auth.onAuthStateChanged(async (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (!user) {
         if (statusNode) statusNode.textContent = "You are not signed in.";
         if (emptyNode) {
@@ -202,11 +228,13 @@ import { auth, db } from "./firebase-config.js";
 
         if (statusNode) statusNode.textContent = "Loading your messages...";
 
-        const snapshot = await db
-          .collection("messages")
-          .where("recipientUid", "==", user.uid)
-          .orderBy("createdAt", "desc")
-          .get();
+        const q = query(
+          collection(db, "messages"),
+          where("recipientUid", "==", user.uid),
+          orderBy("createdAt", "desc")
+        );
+
+        const snapshot = await getDocs(q);
 
         if (snapshot.empty) {
           if (emptyNode) {
@@ -220,8 +248,8 @@ import { auth, db } from "./firebase-config.js";
         if (emptyNode) emptyNode.hidden = true;
         listNode.innerHTML = "";
 
-        snapshot.forEach((doc) => {
-          const data = doc.data();
+        snapshot.forEach((docSnapshot) => {
+          const data = docSnapshot.data();
           const article = document.createElement("article");
           article.className = "message-item";
 
@@ -233,6 +261,7 @@ import { auth, db } from "./firebase-config.js";
             </div>
             <p>"${(data.message || "").replace(/</g, "&lt;").replace(/>/g, "&gt;")}"</p>
           `;
+
           listNode.appendChild(article);
         });
       } catch (error) {
@@ -246,7 +275,7 @@ import { auth, db } from "./firebase-config.js";
 
     if (logoutBtn) {
       logoutBtn.addEventListener("click", async () => {
-        await auth.signOut();
+        await signOut(auth);
         window.location.href = "login.html";
       });
     }
