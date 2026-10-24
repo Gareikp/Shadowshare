@@ -1,6 +1,13 @@
+    // Safely generate URL supporting GitHub Pages subfolders & root domains
+    const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) || '';
+    const userUrl = `${window.location.origin}${basePath}/send.html?to=${user.uid}`;
+    
+    if (shadowLinkDisplay) {
+      shadowLinkDisplay.textContent = userUrl;
+    }
+
     // Fetch Whispers from Firestore
     try {
-      // Ensure we have a fresh auth token before querying Firestore
       await user.getIdToken(true);
 
       const q = query(
@@ -10,8 +17,9 @@
 
       const querySnapshot = await getDocs(q);
       
+      // Clear the "Scanning..." placeholder
       if (messagesContainer) {
-        messagesContainer.innerHTML = ""; // Clear loading state
+        messagesContainer.innerHTML = ""; 
       }
 
       const totalMessages = querySnapshot.size;
@@ -38,9 +46,8 @@
       querySnapshot.forEach((docSnap) => {
         const data = docSnap.data();
         const messageCard = document.createElement("div");
-        messageCard.className = "bg-midnight-900 border border-white/10 p-5 rounded-2xl shadow-md transition-all hover:border-purple-500/40 mb-3";
+        messageCard.className = "bg-midnight-900 border border-white/10 p-5 rounded-2xl shadow-md transition-all hover:border-purple-500/40 mb-3 text-left";
         
-        // Format timestamp safely
         let timeString = "Just now";
         if (data.createdAt && data.createdAt.toDate) {
           timeString = data.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -63,7 +70,7 @@
       if (messagesContainer) {
         messagesContainer.innerHTML = `
           <div class="text-center py-8 text-red-400 text-xs">
-            Failed to load your Shadowbox data. ${escapeHTML(error.message || "")}
+            Error loading data: ${escapeHTML(error.message || "")}
           </div>
         `;
       }
