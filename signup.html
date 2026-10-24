@@ -1,49 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign Up | ShadowShare</title>
-
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <script type="module" src="js/firebase-config.js"></script>
-  <script type="module" src="js/firebase.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShadowShare | Cast Your Shadow</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
-<body class="auth-page">
-  <div class="auth-shell">
-    <div class="auth-card">
-      <div class="auth-brand">
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">
         <i class="fas fa-moon"></i>
         <span>ShadowShare</span>
       </div>
 
-      <h1>Create your account</h1>
-      <p class="auth-subtitle">Start receiving honest anonymous messages from your circle.</p>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="login.html">Sign In</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="auth-page">
+    <div class="auth-card">
+      <h2>Cast Your Shadow</h2>
+      <p class="section-subtitle" style="text-align: center; margin-bottom: 1.5rem;">Create your account to get your unique Shadow Link.</p>
 
       <form id="signup-form" class="auth-form">
-        <label for="displayName">Display name</label>
-        <input id="displayName" name="displayName" type="text" placeholder="Your name" required>
-
-        <label for="email">Email</label>
-        <input id="email" name="email" type="email" placeholder="you@example.com" required>
-
-        <label for="username">Shadow username</label>
-        <input id="username" name="username" type="text" placeholder="your-shadow-name" required>
-
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" placeholder="At least 6 characters" required>
-
-        <button type="submit" class="cta-btn primary auth-btn">Create account</button>
+        <div class="form-group">
+          <label for="signup-username">Username</label>
+          <input type="text" id="signup-username" placeholder="yourname" required />
+        </div>
+        <div class="form-group">
+          <label for="signup-email">Email</label>
+          <input type="email" id="signup-email" placeholder="shadow@shadowshare.site" required />
+        </div>
+        <div class="form-group">
+          <label for="signup-password">Password</label>
+          <input type="password" id="signup-password" placeholder="••••••••" required />
+        </div>
+        <div id="signup-error" class="form-status error hidden"></div>
+        <button type="submit" class="cta-btn primary" style="width: 100%; margin-top: 1rem;">Cast Your Shadow</button>
       </form>
 
-      <p class="auth-meta">Already have an account? <a href="login.html">Log in</a></p>
-      <p id="auth-message" class="auth-message"></p>
+      <p class="auth-redirect" style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;">
+        Already have a shadow? <a href="login.html" style="color: var(--accent-primary);">Sign In</a>
+      </p>
     </div>
-  </div>
+  </main>
+
   <script type="module" src="js/main.js"></script>
-<script type="module" src="js/auth.js"></script>
-<script type="module" src="js/messages.js"></script>
+  <script type="module" src="js/auth.js"></script>
 </body>
 </html>
