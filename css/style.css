@@ -486,3 +486,36 @@ body {
         padding: 1rem;
     }
 }
+/* --- MANUAL FIX: MOBILE LAYOUT --- */
+@media (max-width: 768px) {
+    .container, .hero-container, .message-page {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+        margin: 0 auto !important;
+    }
+    
+    .hero-text {
+        width: 100% !important;
+        padding: 0 !important;
+        text-align: center !important;
+    }
+
+    .hero-title {
+        font-size: 2.5rem !important;
+        word-wrap: break-word !important;
+    }
+
+    .dashboard-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+    }
+
+    .dashboard-sidebar, .dashboard-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 20px !important;
+    }
+}
