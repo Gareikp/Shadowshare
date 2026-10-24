@@ -1,9 +1,58 @@
+import { auth, db } from "./firebase-config.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+document.addEventListener("DOMContentLoaded", () => {
+  const shadowLinkDisplay = document.getElementById("shadow-link-display");
+  const messagesContainer = document.getElementById("messages-container");
+  const copyBtn = document.getElementById("copyShadowLink");
+  const copyText = document.getElementById("copyText");
+  const messageCountBadge = document.getElementById("messageCount");
+  const userEmailDisplay = document.getElementById("user-email-display");
+  const logoutBtn = document.getElementById("logout-btn");
+  const toast = document.getElementById("toast");
+
+  // Auth State Observer
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+
+    // Display user email safely
+    if (userEmailDisplay && user.email) {
+      userEmailDisplay.textContent = user.email;
+    }
+
     // Safely generate URL supporting GitHub Pages subfolders & root domains
     const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) || '';
     const userUrl = `${window.location.origin}${basePath}/send.html?to=${user.uid}`;
     
     if (shadowLinkDisplay) {
       shadowLinkDisplay.textContent = userUrl;
+    }
+
+    // Copy Button Handler with Toast Feedback
+    if (copyBtn && shadowLinkDisplay) {
+      copyBtn.onclick = () => {
+        navigator.clipboard.writeText(shadowLinkDisplay.textContent.trim());
+        if (copyText) copyText.textContent = "Copied!";
+        copyBtn.classList.add("bg-emerald-600");
+
+        if (toast) {
+          toast.classList.remove("translate-y-20", "opacity-0", "pointer-events-none");
+          toast.classList.add("translate-y-0", "opacity-100");
+          setTimeout(() => {
+            toast.classList.remove("translate-y-0", "opacity-100");
+            toast.classList.add("translate-y-20", "opacity-0", "pointer-events-none");
+          }, 2500);
+        }
+
+        setTimeout(() => {
+          if (copyText) copyText.textContent = "Copy Link";
+          copyBtn.classList.remove("bg-emerald-600");
+        }, 2000);
+      };
     }
 
     // Fetch Whispers from Firestore
@@ -75,3 +124,25 @@
         `;
       }
     }
+  });
+
+  // Logout Handler
+  if (logoutBtn) {
+    logoutBtn.onclick = async (e) => {
+      e.preventDefault();
+      try {
+        await signOut(auth);
+        window.location.href = "login.html";
+      } catch (error) {
+        console.error("Sign out error:", error);
+      }
+    };
+  }
+});
+
+// Helper to prevent XSS
+function escapeHTML(str) {
+  return str.replace(/[&<>'"]/g, 
+    tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+  );
+}
