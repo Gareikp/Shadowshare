@@ -1,172 +1,140 @@
-import { db, auth } from './firebase-config.js';
-import { collection, query, where, getDocs, deleteDoc, doc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+// js/messages.js
+import { auth, db } from "./firebase-config.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 
-document.addEventListener('DOMContentLoaded', () => {
-  // 1. Dashboard / Shadowbox Logic
-  const loadingText = document.getElementById('loading-text');
-  const messagesContainer = document.getElementById('messages-container');
-  const shadowLinkDisplay = document.getElementById('shadow-link-display');
-  const copyShadowLinkBtn = document.getElementById('copyShadowLink');
+document.addEventListener("DOMContentLoaded", () => {
+  const shadowLinkDisplay = document.getElementById("shadow-link-display");
+  const messagesContainer = document.getElementById("messages-container");
+  const copyBtn = document.getElementById("copyShadowLink");
+  const copyText = document.getElementById("copyText");
+  const messageCountBadge = document.getElementById("messageCount");
+  const userEmailDisplay = document.getElementById("user-email-display");
+  const logoutBtn = document.getElementById("logout-btn");
+  const toast = document.getElementById("toast");
 
-  if (messagesContainer || shadowLinkDisplay) {
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = 'login.html';
-        return;
-      }
+  // Auth State Observer
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
 
-      const username = user.displayName || user.email.split('@')[0];
-      const userShadowLink = `shadowshare.site/${username}`;
+    // Display user email safely
+    if (userEmailDisplay && user.email) {
+      userEmailDisplay.textContent = user.email;
+    }
 
-      if (shadowLinkDisplay) {
-        shadowLinkDisplay.textContent = userShadowLink;
-      }
+    // Safely generate URL supporting GitHub Pages subfolders & root domains
+    const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) || '';
+    const userUrl = `${window.location.origin}${basePath}/send.html?to=${user.uid}`;
+    
+    if (shadowLinkDisplay) {
+      shadowLinkDisplay.textContent = userUrl;
+    }
 
-      if (copyShadowLinkBtn) {
-        copyShadowLinkBtn.addEventListener('click', async () => {
-          try {
-            await navigator.clipboard.writeText(userShadowLink);
-            copyShadowLinkBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-            setTimeout(() => {
-              copyShadowLinkBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
-            }, 2500);
-          } catch (err) {
-            console.error('Failed to copy link:', err);
-          }
-        });
-      }
+    // Copy Button Handler with Toast Feedback
+    if (copyBtn && shadowLinkDisplay) {
+      copyBtn.onclick = () => {
+        navigator.clipboard.writeText(shadowLinkDisplay.textContent.trim());
+        if (copyText) copyText.textContent = "Copied!";
+        copyBtn.classList.add("bg-emerald-600");
 
-      await loadWhispers(user.uid);
-    });
-  }
+        if (toast) {
+          toast.classList.remove("translate-y-20", "opacity-0", "pointer-events-none");
+          toast.classList.add("translate-y-0", "opacity-100");
+          setTimeout(() => {
+            toast.classList.remove("translate-y-0", "opacity-100");
+            toast.classList.add("translate-y-20", "opacity-0", "pointer-events-none");
+          }, 2500);
+        }
 
-  // 2. Drop a Whisper Form Logic
-  const whisperForm = document.getElementById('shadowForm');
-  const whisperText = document.getElementById('whisperText');
-  const veilNotice = document.getElementById('veilNotice');
-  const MAX_CHARS = 300;
+        setTimeout(() => {
+          if (copyText) copyText.textContent = "Copy Link";
+          copyBtn.classList.remove("bg-emerald-600");
+        }, 2000);
+      };
+    }
 
-  if (whisperText && veilNotice) {
-    whisperText.addEventListener('input', () => {
-      const currentLength = whisperText.value.length;
-      if (currentLength >= MAX_CHARS - 30) {
-        veilNotice.classList.remove('hidden');
-      } else {
-        veilNotice.classList.add('hidden');
-      }
-    });
-  }
-
-  if (whisperForm) {
-    whisperForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const text = whisperText.value.trim();
-      if (!text) return;
-
-      const urlParams = new URLSearchParams(window.location.search);
-      const recipientUid = urlParams.get('to');
-
-      if (!recipientUid) {
-        alert("Invalid Shadow Link. Cannot deliver whisper.");
-        return;
-      }
-
-      try {
-        await addDoc(collection(db, "messages"), {
-          recipientUid: recipientUid,
-          text: text,
-          createdAt: serverTimestamp()
-        });
-
-        alert("Whisper dropped successfully into the shadows!");
-        whisperText.value = '';
-        veilNotice.classList.add('hidden');
-      } catch (error) {
-        console.error("Error dropping whisper:", error);
-        alert("Failed to drop whisper. Please try again.");
-      }
-    });
-  }
-
-  async function loadWhispers(uid) {
+    // Fetch Whispers from Firestore
     try {
-      const q = query(collection(db, "messages"), where("recipientUid", "==", uid));
+      const q = query(
+        collection(db, "messages"),
+        where("recipientUid", "==", user.uid)
+      );
+
       const querySnapshot = await getDocs(q);
+      
+      if (messagesContainer) {
+        messagesContainer.innerHTML = ""; // Clear loading state
+      }
 
-      let whispers = [];
-      querySnapshot.forEach((document) => {
-        whispers.push({ id: document.id, ...document.data() });
-      });
+      const totalMessages = querySnapshot.size;
 
-      whispers.sort((a, b) => {
-        const timeA = a.createdAt?.toMillis() || 0;
-        const timeB = b.createdAt?.toMillis() || 0;
-        return timeB - timeA;
-      });
+      // Update message count badge
+      if (messageCountBadge) {
+        messageCountBadge.textContent = `${totalMessages} Whisper${totalMessages === 1 ? '' : 's'}`;
+      }
 
-      if (loadingText) loadingText.style.display = 'none';
-
-      if (whispers.length === 0) {
-        messagesContainer.innerHTML = `
-          <div class="form-status" style="text-align: center; padding: 2rem;">
-            <i class="fas fa-ghost" style="font-size: 2rem; margin-bottom: 0.5rem; color: var(--accent-primary);"></i>
-            <p>Your Shadowbox is quiet. Share your Shadow Link to get whispers.</p>
-          </div>
-        `;
+      if (totalMessages === 0) {
+        if (messagesContainer) {
+          messagesContainer.innerHTML = `
+            <div class="text-center py-12">
+              <div class="w-12 h-12 rounded-2xl bg-midnight-700 border border-white/10 flex items-center justify-center text-gray-400 mx-auto mb-4">
+                <i class="fas fa-ghost text-xl"></i>
+              </div>
+              <p class="text-sm text-gray-400 font-medium">No whispers found yet. Share your link!</p>
+            </div>
+          `;
+        }
         return;
       }
 
-      messagesContainer.innerHTML = '';
-      whispers.forEach((whisper) => {
-        const card = document.createElement('div');
-        card.className = 'whisper-card';
-        card.innerHTML = `
-          <p class="whisper-text">${escapeHtml(whisper.text)}</p>
-          <div class="whisper-footer" style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">
-            <span class="whisper-time">${formatTime(whisper.createdAt)}</span>
-            <button class="fade-btn" data-id="${whisper.id}" style="background: none; border: none; color: #ff5555; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-              <i class="fas fa-trash-alt"></i> Fade
-            </button>
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const messageCard = document.createElement("div");
+        messageCard.className = "bg-midnight-900 border border-white/10 p-5 rounded-2xl shadow-md transition-all hover:border-purple-500/40";
+        
+        messageCard.innerHTML = `
+          <p class="text-sm text-gray-200 leading-relaxed break-words">${escapeHTML(data.text || data.message || "Empty whisper")}</p>
+          <div class="mt-3 flex items-center justify-between text-xs text-gray-500 border-t border-white/5 pt-3">
+            <span><i class="far fa-clock mr-1 text-purple-400"></i>Anonymous</span>
           </div>
         `;
-        messagesContainer.appendChild(card);
-      });
-
-      document.querySelectorAll('.fade-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-          const messageId = e.currentTarget.getAttribute('data-id');
-          if (confirm("Fade this whisper? It will vanish into the shadows.")) {
-            await fadeWhisper(messageId, e.currentTarget.closest('.whisper-card'));
-          }
-        });
+        if (messagesContainer) {
+          messagesContainer.appendChild(messageCard);
+        }
       });
 
     } catch (error) {
-      console.error("Error loading whispers:", error);
-      if (loadingText) loadingText.textContent = "Failed to load your Shadowbox.";
+      console.error("Error fetching messages:", error);
+      if (messagesContainer) {
+        messagesContainer.innerHTML = `
+          <div class="text-center py-8 text-red-400 text-xs">
+            Failed to load your Shadowbox data. Check Firestore configuration.
+          </div>
+        `;
+      }
     }
-  }
+  });
 
-  async function fadeWhisper(messageId, cardElement) {
-    try {
-      await deleteDoc(doc(db, "messages", messageId));
-      cardElement.style.opacity = '0';
-      setTimeout(() => cardElement.remove(), 300);
-    } catch (error) {
-      console.error("Error fading whisper:", error);
-      alert("Could not fade this whisper. Try again.");
-    }
-  }
-
-  function formatTime(timestamp) {
-    if (!timestamp) return 'Just now';
-    const date = timestamp.toDate();
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
-
-  function escapeHtml(text) {
-    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+  // Logout Handler
+  if (logoutBtn) {
+    logoutBtn.onclick = async (e) => {
+      e.preventDefault();
+      try {
+        await signOut(auth);
+        window.location.href = "login.html";
+      } catch (error) {
+        console.error("Sign out error:", error);
+      }
+    };
   }
 });
+
+// Helper to prevent XSS
+function escapeHTML(str) {
+  return str.replace(/[&<>'"]/g, 
+    tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+  );
+}
