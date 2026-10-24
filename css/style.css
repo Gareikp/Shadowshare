@@ -519,3 +519,44 @@ body {
         margin-bottom: 20px !important;
     }
 }
+/* --- RESTORE LANDING PAGE SPACING --- */
+@media (max-width: 768px) {
+    .hero {
+        padding-top: 100px !important;
+        padding-bottom: 60px !important;
+    }
+
+    .hero-text {
+        padding: 20px !important; /* Brings back the breathing room */
+    }
+
+    .hero-title {
+        margin-bottom: 20px !important;
+        line-height: 1.2 !important;
+    }
+
+    .hero-subtitle {
+        margin-bottom: 30px !important;
+        font-size: 1.1rem !important;
+    }
+
+    .hero-cta {
+        gap: 15px !important; /* Spaces the two big buttons apart */
+        margin-bottom: 30px !important;
+    }
+
+    .hero-demo {
+        padding: 20px !important;
+    }
+
+    .link-demo {
+        flex-direction: row !important; /* Keep link and copy button side-by-side */
+        align-items: center !important;
+    }
+
+    .copy-btn {
+        padding: 12px 15px !important; /* Fixes the tiny copy button */
+        font-size: 0.9rem !important;
+        height: 100% !important;
+    }
+}
