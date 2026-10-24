@@ -1,15 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ShadowShare Dashboard</title>
-
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <script type="module" src="js/firebase-config.js"></script>
-  <script type="module" src="js/firebase.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShadowShare | Your Shadowbox</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
 <body>
   <nav class="navbar">
@@ -18,69 +14,54 @@
         <i class="fas fa-moon"></i>
         <span>ShadowShare</span>
       </div>
+
       <div class="nav-links">
         <a href="index.html">Home</a>
-        <a href="message.html">Send Message</a>
-        <a href="dashboard.html">Dashboard</a>
-        <a href="login.html" class="nav-btn">Log In</a>
+        <a href="dashboard.html" class="active">Shadowbox</a>
+        <a href="#" id="logout-btn">Sign Out</a>
       </div>
     </div>
   </nav>
 
-  <main class="dashboard-shell section">
+  <main class="section">
     <div class="container">
-      <header class="dashboard-header">
-        <div>
-          <p class="eyebrow">Your shadowbox</p>
-          <h1>Anonymous messages</h1>
-        </div>
-        <button id="logout-btn" class="cta-btn secondary" type="button">Log out</button>
-      </header>
+      <div class="dashboard-grid">
+        
+        <aside class="dashboard-sidebar">
+          <h3>Your Shadow Link</h3>
+          <p class="section-subtitle" style="font-size: 0.95rem; text-align: left; margin-bottom: 1rem;">
+            Share this link with friends or on social media to receive whispers from ghosts.
+          </p>
+          
+          <div class="link-demo" style="width: 100%; margin-bottom: 1.5rem;">
+            <code id="shadow-link-display">Loading link...</code>
+            <button class="copy-btn" id="copyShadowLink" type="button">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+          </div>
+        </aside>
 
-      <section class="stats-grid">
-        <article class="stat-card">
-          <span class="stat-label">Total messages</span>
-          <strong id="message-count">0</strong>
-        </article>
-        <article class="stat-card">
-          <span class="stat-label">Unread</span>
-          <strong id="unread-count">0</strong>
-        </article>
-        <article class="stat-card">
-          <span class="stat-label">Profile</span>
-          <strong id="user-handle">--</strong>
-        </article>
-      </section>
+        <section class="dashboard-main">
+          <h2>Your Shadowbox</h2>
+          <p class="section-subtitle" style="text-align: left; font-size: 1rem;">
+            Incoming whispers from the shadows will land here.
+          </p>
 
-      <section class="dashboard-panel">
-        <div class="panel-header">
-          <h2>Recent Shadows</h2>
-          <a href="message.html?user=yourname" class="filter-btn">Share your link</a>
-        </div>
+          <div id="loading-text" class="form-status">Opening your Shadowbox...</div>
+          <div id="messages-container"></div>
+        </section>
 
-        <p id="dashboard-status" class="dashboard-status">Loading your inbox...</p>
-        <div id="dashboard-empty" class="empty-state" hidden>No messages yet. Share your Shadow link to start receiving messages.</div>
-        <div id="dashboard-message-list" class="message-list"></div>
-      </section>
+      </div>
     </div>
   </main>
 
   <footer class="footer">
     <div class="container">
-      <div class="footer-content">
-        <div class="footer-logo">
-          <i class="fas fa-moon"></i>
-          <span>ShadowShare</span>
-        </div>
-        <p class="footer-tagline">Where Shadows Speak</p>
-        <p class="copyright">&copy; <span id="current-year">2024</span> ShadowShare. All rights reserved.</p>
-      </div>
+      <p class="copyright">&copy; <span id="current-year">2026</span> ShadowShare. All rights reserved.</p>
     </div>
   </footer>
 
-  <script src="js/main.js"></script>
   <script type="module" src="js/main.js"></script>
-<script type="module" src="js/auth.js"></script>
-<script type="module" src="js/messages.js"></script>
+  <script type="module" src="js/messages.js"></script>
 </body>
 </html>
