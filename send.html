@@ -94,9 +94,16 @@
         statusEl.textContent = "✨ Whisper sent successfully into the shadows!";
         statusEl.className = "mb-4 p-3 rounded-xl text-xs text-center font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
         statusEl.classList.remove("hidden");
+        
         sendBtn.textContent = "Send Whisper";
         sendBtn.disabled = false;
         input.value = "";
+
+        // Automatically hide the success message after 3.5 seconds
+        setTimeout(() => {
+          statusEl.classList.add("hidden");
+        }, 3500);
+
       } catch (error) {
         console.error("Send whisper error:", error);
         statusEl.textContent = "Failed to send: " + error.message;
