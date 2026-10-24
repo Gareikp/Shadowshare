@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Send a Whisper | ShadowShare</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif']
+          },
+          colors: {
+            midnight: {
+              900: '#0B0D17',
+              800: '#121526',
+              700: '#1A1E36',
+              600: '#262B4C'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-midnight-900 text-white min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-md bg-midnight-800 border border-white/10 rounded-3xl shadow-2xl p-6">
+    <div class="text-center mb-6">
+      <div class="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center mb-4">
+        <i class="fas fa-moon text-xl"></i>
+      </div>
+      <h1 class="text-2xl font-extrabold">Send a Whisper</h1>
+      <p class="text-sm text-gray-400 mt-2">Anonymous message to this Shadowbox</p>
+    </div>
+
+    <textarea id="messageInput" rows="5" class="w-full rounded-2xl border border-white/10 bg-midnight-900 p-4 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Write something honest..."></textarea>
+
+    <button id="sendBtn" class="mt-5 w-full bg-gradient-to-r from-purple-600 to-indigo-500 text-white font-semibold py-3 rounded-2xl">
+      Send Whisper
+    </button>
+
+    <p id="status" class="mt-4 text-center text-sm text-gray-300 hidden"></p>
+  </div>
+
+  <script type="module">
+    import { auth, db } from "./js/firebase-config.js";
+    import { addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+
+    const params = new URLSearchParams(window.location.search);
+    const recipientUid = params.get("to");
+
+    const statusEl = document.getElementById("status");
+    const sendBtn = document.getElementById("sendBtn");
+    const input = document.getElementById("messageInput");
+
+    if (!recipientUid) {
+      statusEl.textContent = "Invalid link. No recipient was found.";
+      statusEl.classList.remove("hidden");
+      sendBtn.disabled = true;
+      return;
+    }
+
+    sendBtn.addEventListener("click", async () => {
+      const text = input.value.trim();
+
+      if (!text) {
+        statusEl.textContent = "Please write a message first.";
+        statusEl.classList.remove("hidden");
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "messages"), {
+          recipientUid,
+          message: text,
+          text,
+          createdAt: serverTimestamp(),
+          isAnonymous: true,
+          senderName: "Anonymous",
+          status: "new"
+        });
+
+        statusEl.textContent = "Whisper sent successfully.";
+        statusEl.classList.remove("hidden");
+        statusEl.classList.add("text-emerald-400");
+        sendBtn.disabled = true;
+        input.value = "";
+      } catch (error) {
+        console.error("Send whisper error:", error);
+        statusEl.textContent = "Failed to send whisper. Please try again.";
+        statusEl.classList.remove("hidden");
+        statusEl.classList.add("text-red-400");
+      }
+    });
+  </script>
+</body>
+</html>
