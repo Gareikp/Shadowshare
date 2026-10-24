@@ -4,7 +4,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
   updateProfile
-} from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', () => {
   const signupForm = document.getElementById('signup-form');
