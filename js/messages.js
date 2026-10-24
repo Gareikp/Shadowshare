@@ -1,42 +1,93 @@
 import { db, auth } from './firebase-config.js';
-import { collection, query, where, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+import { collection, query, where, getDocs, deleteDoc, doc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', () => {
+  // 1. Dashboard / Shadowbox Logic
   const loadingText = document.getElementById('loading-text');
   const messagesContainer = document.getElementById('messages-container');
   const shadowLinkDisplay = document.getElementById('shadow-link-display');
   const copyShadowLinkBtn = document.getElementById('copyShadowLink');
 
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = 'login.html';
-      return;
-    }
+  if (messagesContainer || shadowLinkDisplay) {
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
 
-    const username = user.displayName || user.email.split('@')[0];
-    const userShadowLink = `shadowshare.site/${username}`;
+      const username = user.displayName || user.email.split('@')[0];
+      const userShadowLink = `shadowshare.site/${username}`;
 
-    if (shadowLinkDisplay) {
-      shadowLinkDisplay.textContent = userShadowLink;
-    }
+      if (shadowLinkDisplay) {
+        shadowLinkDisplay.textContent = userShadowLink;
+      }
 
-    if (copyShadowLinkBtn) {
-      copyShadowLinkBtn.addEventListener('click', async () => {
-        try {
-          await navigator.clipboard.writeText(userShadowLink);
-          copyShadowLinkBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-          setTimeout(() => {
-            copyShadowLinkBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
-          }, 2500);
-        } catch (err) {
-          console.error('Failed to copy link:', err);
-        }
-      });
-    }
+      if (copyShadowLinkBtn) {
+        copyShadowLinkBtn.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(userShadowLink);
+            copyShadowLinkBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+              copyShadowLinkBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+            }, 2500);
+          } catch (err) {
+            console.error('Failed to copy link:', err);
+          }
+        });
+      }
 
-    await loadWhispers(user.uid);
-  });
+      await loadWhispers(user.uid);
+    });
+  }
+
+  // 2. Drop a Whisper Form Logic
+  const whisperForm = document.getElementById('shadowForm');
+  const whisperText = document.getElementById('whisperText');
+  const veilNotice = document.getElementById('veilNotice');
+  const MAX_CHARS = 300;
+
+  if (whisperText && veilNotice) {
+    whisperText.addEventListener('input', () => {
+      const currentLength = whisperText.value.length;
+      if (currentLength >= MAX_CHARS - 30) {
+        veilNotice.classList.remove('hidden');
+      } else {
+        veilNotice.classList.add('hidden');
+      }
+    });
+  }
+
+  if (whisperForm) {
+    whisperForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = whisperText.value.trim();
+      if (!text) return;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const recipientUid = urlParams.get('to');
+
+      if (!recipientUid) {
+        alert("Invalid Shadow Link. Cannot deliver whisper.");
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "messages"), {
+          recipientUid: recipientUid,
+          text: text,
+          createdAt: serverTimestamp()
+        });
+
+        alert("Whisper dropped successfully into the shadows!");
+        whisperText.value = '';
+        veilNotice.classList.add('hidden');
+      } catch (error) {
+        console.error("Error dropping whisper:", error);
+        alert("Failed to drop whisper. Please try again.");
+      }
+    });
+  }
 
   async function loadWhispers(uid) {
     try {
