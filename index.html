@@ -4,185 +4,349 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ShadowShare | Where Shadows Speak</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Google Fonts Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            midnight: {
+              900: '#0B0D17',
+              800: '#121526',
+              700: '#1A1E36',
+              600: '#262B4C',
+            },
+            purpleGlow: '#8B5CF6',
+            cyanGlow: '#06B6D4',
+          },
+          boxShadow: {
+            'glow-purple': '0 0 25px -5px rgba(139, 92, 246, 0.4)',
+            'glow-cyan': '0 0 25px -5px rgba(6, 182, 212, 0.4)',
+            'glow-btn': '0 0 20px rgba(139, 92, 246, 0.5)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #0B0D17;
+      color: #F3F4F6;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+    .bg-grid-pattern {
+      background-image: radial-gradient(rgba(139, 92, 246, 0.15) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .text-gradient {
+      background: linear-gradient(135deg, #A78BFA 0%, #38BDF8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .btn-gradient {
+      background: linear-gradient(135deg, #7C3AED 0%, #2563EB 100%);
+      transition: all 0.3s ease;
+    }
+    .btn-gradient:hover {
+      background: linear-gradient(135deg, #6D28D9 0%, #1D4ED8 100%);
+      box-shadow: 0 0 25px rgba(124, 58, 237, 0.6);
+      transform: translateY(-1px);
+    }
+    #toast {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+  </style>
 </head>
-<body>
-  <nav class="navbar">
-    <div class="nav-container">
-      <div class="logo">
-        <i class="fas fa-moon"></i>
-        <span>ShadowShare</span>
-      </div>
+<body class="bg-midnight-900 text-gray-100 min-h-screen flex flex-col justify-between selection:bg-purpleGlow selection:text-white relative">
 
-      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
-        <i class="fas fa-bars"></i>
-      </button>
+  <!-- Background Glow Orbs -->
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[500px] bg-gradient-to-b from-purple-900/20 via-blue-900/10 to-transparent blur-3xl pointer-events-none -z-10"></div>
 
-      <div class="nav-links" id="navLinks">
-        <a href="index.html">Home</a>
-        <a href="#how">How It Works</a>
-        <a href="#features">Features</a>
-        <a href="dashboard.html">Shadowbox</a>
-        <a href="login.html">Sign In</a>
-        <a href="signup.html" class="nav-btn">Cast Your Shadow</a>
+  <!-- NAVBAR -->
+  <nav class="sticky top-0 z-50 bg-midnight-900/80 backdrop-blur-md border-b border-white/10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        
+        <!-- Logo -->
+        <a href="index.html" class="flex items-center gap-2.5 group">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-glow-purple group-hover:scale-105 transition-transform">
+            <i class="fas fa-moon text-white text-lg"></i>
+          </div>
+          <span class="font-bold text-xl tracking-tight text-white group-hover:text-purple-300 transition-colors">ShadowShare</span>
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <div class="hidden md:flex items-center gap-6 text-sm font-medium">
+          <a href="index.html" class="text-white hover:text-purple-400 transition-colors">Home</a>
+          <a href="#how" class="text-gray-300 hover:text-purple-400 transition-colors">How It Works</a>
+          <a href="#features" class="text-gray-300 hover:text-purple-400 transition-colors">Features</a>
+          <a href="dashboard.html" class="text-gray-300 hover:text-purple-400 transition-colors">Shadowbox</a>
+          <a href="login.html" class="text-gray-300 hover:text-purple-400 transition-colors">Sign In</a>
+          <a href="signup.html" class="btn-gradient px-4 py-2 rounded-xl text-white font-semibold text-xs uppercase tracking-wider shadow-md">Cast Your Shadow</a>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <div class="md:hidden flex items-center">
+          <button id="navToggle" type="button" class="text-gray-300 hover:text-white p-2 rounded-lg focus:outline-none" aria-label="Toggle Navigation">
+            <i class="fas fa-bars text-xl" id="menuIcon"></i>
+          </button>
+        </div>
       </div>
+    </div>
+
+    <!-- Mobile Navigation Dropdown -->
+    <div id="navLinks" class="hidden md:hidden bg-midnight-800 border-b border-white/10 px-4 pt-3 pb-6 space-y-3 transition-all">
+      <a href="index.html" class="block py-2 text-gray-200 hover:text-purple-400 font-medium">Home</a>
+      <a href="#how" class="block py-2 text-gray-300 hover:text-purple-400 font-medium">How It Works</a>
+      <a href="#features" class="block py-2 text-gray-300 hover:text-purple-400 font-medium">Features</a>
+      <a href="dashboard.html" class="block py-2 text-gray-300 hover:text-purple-400 font-medium">Shadowbox</a>
+      <a href="login.html" class="block py-2 text-gray-300 hover:text-purple-400 font-medium">Sign In</a>
+      <a href="signup.html" class="block w-full text-center btn-gradient py-2.5 rounded-xl text-white font-semibold text-sm shadow-md mt-2">Cast Your Shadow</a>
     </div>
   </nav>
 
-  <main>
-    <section class="hero">
-      <div class="hero-container">
-        <div class="hero-text">
-          <h1 class="hero-title">Where <span class="highlight">Shadows</span> Speak</h1>
+  <!-- MAIN CONTENT -->
+  <main class="flex-grow">
 
-          <p class="hero-subtitle">
-            Share your Shadow Link. Receive honest, anonymous whispers from friends, followers, and ghosts in your circles.
-          </p>
+    <!-- HERO SECTION -->
+    <section class="relative pt-12 pb-16 md:pt-24 md:pb-28 bg-grid-pattern">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+        
+        <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white mb-6 leading-tight">
+          Where <span class="text-gradient">Shadows</span> Speak
+        </h1>
 
-          <div class="hero-cta">
-            <a href="signup.html" class="cta-btn primary">
-              <i class="fas fa-bolt"></i>
-              <span>Cast Your Shadow</span>
-            </a>
-
-            <a href="#how" class="cta-btn secondary">
-              <i class="fas fa-play-circle"></i>
-              <span>See How It Works</span>
-            </a>
-          </div>
-
-          <div class="hero-demo">
-            <p>Your personal Shadow Link will look like this:</p>
-
-            <div class="link-demo">
-              <code id="demoLink">shadowshare.site/yourname</code>
-              <button class="copy-btn" id="copyDemoBtn" type="button">
-                <i class="fas fa-copy"></i> <span id="copyBtnText">Copy</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="how" class="section how-it-works">
-      <div class="container slim">
-        <h2 class="section-title">How <span class="highlight">ShadowShare</span> Works</h2>
-        <p class="section-subtitle">Three simple steps to start receiving anonymous whispers</p>
-
-        <div class="steps">
-          <div class="step">
-            <div class="step-icon">
-              <div class="step-number">1</div>
-              <i class="fas fa-user-plus"></i>
-            </div>
-            <h3>Cast Your Shadow</h3>
-            <p>Sign up in seconds to obtain your unique, shareable Shadow Link.</p>
-          </div>
-
-          <div class="step">
-            <div class="step-icon">
-              <div class="step-number">2</div>
-              <i class="fas fa-share-alt"></i>
-            </div>
-            <h3>Share Your Shadow Link</h3>
-            <p>Post your link on social media, in your bio, or share directly with friends.</p>
-          </div>
-
-          <div class="step">
-            <div class="step-icon">
-              <div class="step-number">3</div>
-              <i class="fas fa-comment-dots"></i>
-            </div>
-            <h3>Receive Whispers</h3>
-            <p>Read whispers left by ghosts in your private, secure Shadowbox.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="features" class="section features">
-      <div class="container slim">
-        <h2 class="section-title why-title">Why Choose <span class="highlight">ShadowShare</span></h2>
-
-        <p class="section-subtitle">
-          Built with privacy, safety, and genuine connection in mind
+        <p class="text-base sm:text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-8 font-normal leading-relaxed">
+          Share your Shadow Link. Receive honest, anonymous whispers from friends, followers, and ghosts in your circles.
         </p>
 
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="fas fa-user-secret"></i>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+          <a href="signup.html" class="w-full sm:w-auto btn-gradient px-8 py-3.5 rounded-2xl text-white font-semibold flex items-center justify-center gap-2.5 shadow-glow-purple text-base">
+            <i class="fas fa-bolt text-yellow-300"></i>
+            <span>Cast Your Shadow</span>
+          </a>
+
+          <a href="#how" class="w-full sm:w-auto bg-midnight-800 hover:bg-midnight-700 border border-white/10 px-8 py-3.5 rounded-2xl text-gray-200 font-semibold flex items-center justify-center gap-2.5 transition-all text-base">
+            <i class="fas fa-play-circle text-purple-400"></i>
+            <span>See How It Works</span>
+          </a>
+        </div>
+
+        <!-- Shadow Link Demo Box -->
+        <div class="max-w-md mx-auto bg-midnight-800/80 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-white/10 shadow-2xl">
+          <p class="text-xs sm:text-sm text-gray-400 mb-3 font-medium">Your personal Shadow Link will look like this:</p>
+
+          <div class="bg-midnight-900 border border-purple-500/30 rounded-xl p-2.5 sm:p-3 flex items-center justify-between gap-2 overflow-hidden shadow-inner">
+            <code id="demoLink" class="text-purple-300 font-mono text-xs sm:text-sm truncate select-all pl-1">
+              shadowshare.site/yourname
+            </code>
+
+            <button id="copyDemoBtn" type="button" class="bg-purple-600 hover:bg-purple-500 active:scale-95 text-white font-medium text-xs px-3.5 py-2 rounded-lg flex items-center gap-1.5 shrink-0 transition-all shadow-md">
+              <i class="fas fa-copy text-xs"></i>
+              <span id="copyBtnText">Copy</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS SECTION -->
+    <section id="how" class="py-16 md:py-24 border-t border-white/5 bg-midnight-900/50">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6">
+        <div class="text-center mb-12 sm:mb-16">
+          <h2 class="text-2xl sm:text-4xl font-bold text-white mb-3">
+            How <span class="text-gradient">ShadowShare</span> Works
+          </h2>
+          <p class="text-sm sm:text-base text-gray-400">Three simple steps to start receiving anonymous whispers</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+          <div class="bg-midnight-800/60 border border-white/10 p-6 sm:p-8 rounded-2xl">
+            <div class="flex items-center justify-between mb-6">
+              <div class="w-12 h-12 rounded-2xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                <i class="fas fa-user-plus text-xl"></i>
+              </div>
+              <span class="w-8 h-8 rounded-full bg-midnight-700 border border-purple-500/50 text-purple-300 font-bold text-sm flex items-center justify-center">1</span>
             </div>
-            <h3>True Anonymity</h3>
-            <p>
-              Ghosts are completely anonymous. We don't store identifying information about sender identities.
-            </p>
+            <h3 class="text-lg font-bold text-white mb-2">Cast Your Shadow</h3>
+            <p class="text-sm text-gray-400 leading-relaxed">Sign up in seconds to obtain your unique, shareable Shadow Link.</p>
           </div>
 
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="fas fa-shield-alt"></i>
+          <div class="bg-midnight-800/60 border border-white/10 p-6 sm:p-8 rounded-2xl">
+            <div class="flex items-center justify-between mb-6">
+              <div class="w-12 h-12 rounded-2xl bg-cyan-600/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                <i class="fas fa-share-alt text-xl"></i>
+              </div>
+              <span class="w-8 h-8 rounded-full bg-midnight-700 border border-cyan-500/50 text-cyan-300 font-bold text-sm flex items-center justify-center">2</span>
             </div>
-            <h3>Safe Space</h3>
-            <p>
-              Advanced filters and tools maintain a positive, respectful environment for every Shadow.
-            </p>
+            <h3 class="text-lg font-bold text-white mb-2">Share Your Shadow Link</h3>
+            <p class="text-sm text-gray-400 leading-relaxed">Post your link on social media, in your bio, or share directly with friends.</p>
           </div>
 
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="fas fa-mobile-alt"></i>
+          <div class="bg-midnight-800/60 border border-white/10 p-6 sm:p-8 rounded-2xl">
+            <div class="flex items-center justify-between mb-6">
+              <div class="w-12 h-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                <i class="fas fa-comment-dots text-xl"></i>
+              </div>
+              <span class="w-8 h-8 rounded-full bg-midnight-700 border border-indigo-500/50 text-indigo-300 font-bold text-sm flex items-center justify-center">3</span>
             </div>
-            <h3>Always Accessible</h3>
-            <p>
-              Beautifully designed for phones, tablets, and desktop browsers. Your shadows follow you everywhere.
-            </p>
+            <h3 class="text-lg font-bold text-white mb-2">Receive Whispers</h3>
+            <p class="text-sm text-gray-400 leading-relaxed">Read whispers left by ghosts in your private, secure Shadowbox.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section cta-section">
-      <div class="container">
-        <div class="cta-box">
-          <h2>Ready to Hear What the Shadows Have to Say?</h2>
-          <p>Join thousands of Shadows having more honest conversations through ShadowShare.</p>
-          <a href="signup.html" class="cta-btn primary large">
-            <i class="fas fa-moon"></i>
+    <!-- FEATURES SECTION -->
+    <section id="features" class="py-16 md:py-24 border-t border-white/5">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6">
+        <div class="text-center mb-12 sm:mb-16">
+          <h2 class="text-2xl sm:text-4xl font-bold text-white mb-3">
+            Why Choose <span class="text-gradient">ShadowShare</span>
+          </h2>
+          <p class="text-sm sm:text-base text-gray-400">Built with privacy, safety, and genuine connection in mind</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+          <div class="bg-midnight-800/40 border border-white/10 p-6 sm:p-8 rounded-2xl">
+            <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mb-5">
+              <i class="fas fa-user-secret text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">True Anonymity</h3>
+            <p class="text-sm text-gray-400 leading-relaxed">Ghosts are completely anonymous. We don't store identifying information about sender identities.</p>
+          </div>
+
+          <div class="bg-midnight-800/40 border border-white/10 p-6 sm:p-8 rounded-2xl">
+            <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400 mb-5">
+              <i class="fas fa-shield-alt text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Safe Space</h3>
+            <p class="text-sm text-gray-400 leading-relaxed">Advanced filters and tools maintain a positive, respectful environment for every Shadow.</p>
+          </div>
+
+          <div class="bg-midnight-800/40 border border-white/10 p-6 sm:p-8 rounded-2xl">
+            <div class="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 mb-5">
+              <i class="fas fa-mobile-alt text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-2">Always Accessible</h3>
+            <p class="text-sm text-gray-400 leading-relaxed">Beautifully designed for phones, tablets, and desktop browsers. Your shadows follow you everywhere.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CALL TO ACTION SECTION -->
+    <section class="py-16 md:py-20 border-t border-white/5 bg-gradient-to-b from-midnight-900 via-midnight-800 to-midnight-900">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+        <div class="bg-midnight-800/90 border border-purple-500/30 p-8 sm:p-12 rounded-3xl shadow-glow-purple relative overflow-hidden">
+          <h2 class="text-2xl sm:text-4xl font-extrabold text-white mb-4 relative z-10">
+            Ready to Hear What the Shadows Have to Say?
+          </h2>
+          <p class="text-sm sm:text-base text-gray-300 max-w-xl mx-auto mb-8 relative z-10">
+            Join thousands of Shadows having more honest conversations through ShadowShare.
+          </p>
+          <a href="signup.html" class="inline-flex items-center justify-center gap-2.5 btn-gradient px-8 py-4 rounded-2xl text-white font-bold text-base shadow-lg relative z-10">
+            <i class="fas fa-moon text-yellow-300"></i>
             <span>Cast Your Shadow</span>
           </a>
-          <p class="cta-note">Shadow is free.</p>
+          <p class="text-xs text-gray-400 mt-4 relative z-10">Shadow is free.</p>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-content">
-        <div class="footer-logo">
-          <i class="fas fa-moon"></i>
-          <span>ShadowShare</span>
+  <!-- FOOTER -->
+  <footer class="bg-midnight-900 border-t border-white/10 py-10">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+        <div class="flex flex-col items-center md:items-start gap-1">
+          <div class="flex items-center gap-2">
+            <i class="fas fa-moon text-purple-400 text-lg"></i>
+            <span class="font-bold text-lg text-white">ShadowShare</span>
+          </div>
+          <p class="text-xs text-gray-400">Where Shadows Speak</p>
         </div>
-
-        <p class="footer-tagline">Where Shadows Speak</p>
-
-        <div class="footer-links">
-          <a href="privacy.html">Privacy</a>
-          <a href="terms.html">Terms</a>
-          <a href="safety.html">Safety</a>
-          <a href="contact.html">Contact</a>
+        <div class="flex flex-wrap justify-center gap-6 text-xs text-gray-400">
+          <a href="#" class="hover:text-purple-400 transition-colors">Privacy</a>
+          <a href="#" class="hover:text-purple-400 transition-colors">Terms</a>
+          <a href="#" class="hover:text-purple-400 transition-colors">Safety</a>
+          <a href="#" class="hover:text-purple-400 transition-colors">Contact</a>
         </div>
-
-        <p class="copyright">&copy; <span id="current-year">2026</span> ShadowShare. All rights reserved.</p>
+        <p class="text-xs text-gray-500">&copy; <span id="current-year">2026</span> ShadowShare. All rights reserved.</p>
       </div>
     </div>
   </footer>
 
-  <script type="module" src="js/main.js"></script>
-  <script type="module" src="js/auth.js"></script>
-  <script type="module" src="js/messages.js"></script>
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 pointer-events-none bg-midnight-800 border border-purple-500/50 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 z-50">
+    <div class="w-7 h-7 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs">
+      <i class="fas fa-check"></i>
+    </div>
+    <span class="text-xs sm:text-sm font-medium">Demo link copied to clipboard!</span>
+  </div>
+
+  <!-- INTERACTIVE SCRIPTS -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('current-year').textContent = new Date().getFullYear();
+
+      const navToggle = document.getElementById('navToggle');
+      const navLinks = document.getElementById('navLinks');
+      const menuIcon = document.getElementById('menuIcon');
+
+      if (navToggle && navLinks && menuIcon) {
+        navToggle.addEventListener('click', () => {
+          navLinks.classList.toggle('hidden');
+          menuIcon.className = navLinks.classList.contains('hidden') ? 'fas fa-bars text-xl' : 'fas fa-times text-xl';
+        });
+      }
+
+      const copyDemoBtn = document.getElementById('copyDemoBtn');
+      const demoLink = document.getElementById('demoLink');
+      const copyBtnText = document.getElementById('copyBtnText');
+      const toast = document.getElementById('toast');
+
+      if (copyDemoBtn && demoLink) {
+        copyDemoBtn.addEventListener('click', () => {
+          const textToCopy = demoLink.textContent.trim();
+          navigator.clipboard.writeText(textToCopy);
+
+          copyBtnText.textContent = 'Copied!';
+          copyDemoBtn.classList.remove('bg-purple-600', 'hover:bg-purple-500');
+          copyDemoBtn.classList.add('bg-emerald-600');
+
+          if (toast) {
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+              toast.classList.remove('translate-y-0', 'opacity-100');
+              toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 2500);
+          }
+
+          setTimeout(() => {
+            copyBtnText.textContent = 'Copy';
+            copyDemoBtn.classList.remove('bg-emerald-600');
+            copyDemoBtn.classList.add('bg-purple-600', 'hover:bg-purple-500');
+          }, 2000);
+        });
+      }
+    });
+  </script>
 </body>
 </html>
