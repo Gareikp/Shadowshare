@@ -4,62 +4,136 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ShadowShare | Cast Your Shadow</title>
-  <link rel="stylesheet" href="css/style.css" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            midnight: {
+              900: '#0B0D17',
+              800: '#121526',
+              700: '#1A1E36',
+              600: '#262B4C',
+            },
+            purpleGlow: '#8B5CF6',
+            cyanGlow: '#06B6D4',
+          },
+          boxShadow: {
+            'glow-purple': '0 0 25px -5px rgba(139, 92, 246, 0.4)',
+            'glow-btn': '0 0 20px rgba(139, 92, 246, 0.5)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background: #0B0D17;
+      color: #F3F4F6;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .text-gradient {
+      background: linear-gradient(135deg, #A78BFA 0%, #38BDF8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .btn-gradient {
+      background: linear-gradient(135deg, #7C3AED 0%, #2563EB 100%);
+      transition: all 0.3s ease;
+    }
+
+    .btn-gradient:hover {
+      background: linear-gradient(135deg, #6D28D9 0%, #1D4ED8 100%);
+      box-shadow: 0 0 25px rgba(124, 58, 237, 0.6);
+      transform: translateY(-1px);
+    }
+  </style>
 </head>
-<body>
-  <nav class="navbar">
-    <div class="nav-container">
-      <div class="logo">
-        <i class="fas fa-moon"></i>
-        <span>ShadowShare</span>
+
+<body class="min-h-screen bg-midnight-900 text-gray-100 flex items-center justify-center px-4 py-10">
+  <div class="w-full max-w-md">
+    <div class="bg-midnight-800 rounded-3xl p-6 sm:p-8 border border-white/10 shadow-2xl">
+      <div class="flex items-center justify-center mb-6">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-glow-purple">
+          <i class="fas fa-moon text-white text-xl"></i>
+        </div>
       </div>
 
-      <div class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="login.html">Sign In</a>
+      <div class="text-center mb-6">
+        <h1 class="text-3xl font-extrabold tracking-tight">
+          Cast Your <span class="text-gradient">Shadow</span>
+        </h1>
+        <p class="mt-2 text-sm text-gray-400">
+          Create your account and receive anonymous whispers.
+        </p>
       </div>
-    </div>
-  </nav>
 
-  <main class="auth-page">
-    <div class="auth-card">
-      <h2>Cast Your Shadow</h2>
-      <p class="section-subtitle" style="text-align: center; margin-bottom: 1.5rem;">
-        Create your account to get your unique Shadow Link.
-      </p>
-
-      <form id="signup-form" class="auth-form">
-        <div class="form-group">
-          <label for="signup-username">Username</label>
-          <input type="text" id="signup-username" placeholder="yourname" required />
+      <form id="signup-form" class="space-y-5">
+        <div>
+          <label for="signup-username" class="block text-sm font-medium text-gray-300 mb-2">Username</label>
+          <input
+            id="signup-username"
+            type="text"
+            placeholder="yourname"
+            required
+            class="w-full rounded-2xl border border-white/10 bg-midnight-900 text-gray-100 placeholder-gray-500 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
         </div>
 
-        <div class="form-group">
-          <label for="signup-email">Email</label>
-          <input type="email" id="signup-email" placeholder="shadow@shadowshare.site" required />
+        <div>
+          <label for="signup-email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+          <input
+            id="signup-email"
+            type="email"
+            placeholder="shadow@shadowshare.site"
+            required
+            class="w-full rounded-2xl border border-white/10 bg-midnight-900 text-gray-100 placeholder-gray-500 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
         </div>
 
-        <div class="form-group">
-          <label for="signup-password">Password</label>
-          <input type="password" id="signup-password" placeholder="••••••••" required />
+        <div>
+          <label for="signup-password" class="block text-sm font-medium text-gray-300 mb-2">Password</label>
+          <input
+            id="signup-password"
+            type="password"
+            placeholder="••••••••"
+            required
+            class="w-full rounded-2xl border border-white/10 bg-midnight-900 text-gray-100 placeholder-gray-500 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
         </div>
 
-        <div id="signup-error" class="form-status error hidden"></div>
+        <div id="signup-error" class="hidden rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300"></div>
 
-        <button type="submit" class="cta-btn primary" style="width: 100%; margin-top: 1rem;">
+        <button type="submit" class="btn-gradient w-full text-white font-semibold py-3 rounded-2xl shadow-glow-btn">
           Cast Your Shadow
         </button>
       </form>
 
-      <p class="auth-redirect" style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;">
+      <p class="mt-6 text-center text-sm text-gray-400">
         Already have a shadow?
-        <a href="login.html" style="color: var(--accent-primary);">Sign In</a>
+        <a href="login.html" class="text-purple-400 hover:text-purple-300 font-medium">Sign In</a>
       </p>
-    </div>
-  </main>
 
-  <script type="module" src="js/firebase-config.js"></script>
-  <script type="module" src="js/auth.js"></script>
+      <div class="mt-4 text-center">
+        <a href="index.html" class="text-sm text-gray-400 hover:text-gray-200">Back home</a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/firebase-config.js"></script>
+  <script type="module" src="./js/auth.js"></script>
 </body>
 </html>
