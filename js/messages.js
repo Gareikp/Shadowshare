@@ -30,7 +30,6 @@ document.addEventListener("DOMContentLoaded", () => {
       userEmailDisplay.textContent = user.email;
     }
 
-    // Vercel-safe root path: https://your-domain/send.html?to=USER_ID
     const userUrl = new URL("/send.html", window.location.origin);
     userUrl.searchParams.set("to", user.uid);
 
