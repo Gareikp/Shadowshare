@@ -4,67 +4,86 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Send a Whisper | ShadowShare</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif']
+          },
           colors: {
-            midnight: { 900: '#0B0D17', 800: '#121526', 700: '#1A1E36', 600: '#262B4C' }
+            midnight: {
+              900: '#0B0D17',
+              800: '#121526',
+              700: '#1A1E36',
+              600: '#262B4C'
+            }
           }
         }
       }
     }
   </script>
 </head>
-<body class="bg-midnight-900 text-white min-h-screen flex items-center justify-center p-4">
-  <div class="w-full max-w-md bg-midnight-800 border border-white/10 rounded-3xl shadow-2xl p-6">
+
+<body class="min-h-screen bg-midnight-900 text-white flex items-center justify-center px-4 py-10">
+  <div class="w-full max-w-md bg-midnight-800 rounded-3xl border border-white/10 p-6 sm:p-8 shadow-2xl">
     <div class="text-center mb-6">
-      <div class="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center mb-4">
+      <div class="mx-auto w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center mb-4 shadow-lg">
         <i class="fas fa-moon text-xl"></i>
       </div>
       <h1 class="text-2xl font-extrabold">Send a Whisper</h1>
-      <p class="text-sm text-gray-400 mt-2">Anonymous message to this Shadowbox</p>
+      <p class="mt-2 text-sm text-gray-400">Anonymous message to this Shadowbox</p>
     </div>
 
-    <!-- Status / Error Banner -->
-    <div id="status" class="mb-4 p-3 rounded-xl text-xs text-center font-medium hidden"></div>
+    <div
+      id="status"
+      class="mb-4 hidden rounded-xl border border-white/10 bg-midnight-900 px-3 py-2 text-center text-xs text-gray-300"
+    ></div>
 
-    <textarea id="messageInput" rows="5" class="w-full rounded-2xl border border-white/10 bg-midnight-900 p-4 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none" placeholder="Write something honest..."></textarea>
+    <textarea
+      id="messageInput"
+      rows="5"
+      class="w-full rounded-2xl border border-white/10 bg-midnight-900 text-gray-100 placeholder-gray-500 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+      placeholder="Write something honest..."
+    ></textarea>
 
-    <button id="sendBtn" class="mt-5 w-full bg-gradient-to-r from-purple-600 to-indigo-500 text-white font-semibold py-3 rounded-2xl transition-all shadow-lg active:scale-95 cursor-pointer">
+    <button
+      id="sendBtn"
+      type="button"
+      class="mt-5 w-full bg-gradient-to-r from-purple-600 to-indigo-500 text-white font-semibold py-3 rounded-2xl shadow-lg transition hover:brightness-110 active:scale-[0.99]"
+    >
       Send Whisper
     </button>
   </div>
 
   <script type="module">
-    const statusEl = document.getElementById("status");
-    const sendBtn = document.getElementById("sendBtn");
-    const input = document.getElementById("messageInput");
-
-    // Catch any silent script/import errors on mobile and display them on screen
-    window.onerror = function(msg, url, line) {
-      statusEl.textContent = `Error: ${msg} (Line ${line})`;
-      statusEl.className = "mb-4 p-3 rounded-xl text-xs text-center font-medium bg-red-500/20 text-red-300 border border-red-500/30";
-      statusEl.classList.remove("hidden");
-    };
-
     import { db } from "./js/firebase-config.js";
-    import { addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+    import {
+      addDoc,
+      collection,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 
     const params = new URLSearchParams(window.location.search);
     const recipientUid = params.get("to");
 
+    const statusEl = document.getElementById("status");
+    const sendBtn = document.getElementById("sendBtn");
+    const input = document.getElementById("messageInput");
+
     if (!recipientUid) {
-      statusEl.textContent = "Invalid link: No recipient was found.";
-      statusEl.className = "mb-4 p-3 rounded-xl text-xs text-center font-medium bg-red-500/20 text-red-300 border border-red-500/30";
+      statusEl.textContent = "Invalid link: no recipient was found.";
       statusEl.classList.remove("hidden");
+      statusEl.classList.add("border-red-500/30", "bg-red-500/10", "text-red-300");
       sendBtn.disabled = true;
+      return;
     }
 
     sendBtn.addEventListener("click", async () => {
@@ -72,8 +91,8 @@
 
       if (!text) {
         statusEl.textContent = "Please write a message first.";
-        statusEl.className = "mb-4 p-3 rounded-xl text-xs text-center font-medium bg-amber-500/20 text-amber-300 border border-amber-500/30";
         statusEl.classList.remove("hidden");
+        statusEl.classList.add("border-amber-500/30", "bg-amber-500/10", "text-amber-300");
         return;
       }
 
@@ -91,24 +110,18 @@
           status: "new"
         });
 
-        statusEl.textContent = "✨ Whisper sent successfully into the shadows!";
-        statusEl.className = "mb-4 p-3 rounded-xl text-xs text-center font-medium bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+        statusEl.textContent = "✨ Whisper sent successfully.";
         statusEl.classList.remove("hidden");
-        
-        sendBtn.textContent = "Send Whisper";
-        sendBtn.disabled = false;
+        statusEl.classList.add("border-emerald-500/30", "bg-emerald-500/10", "text-emerald-300");
+
         input.value = "";
-
-        // Automatically hide the success message after 3.5 seconds
-        setTimeout(() => {
-          statusEl.classList.add("hidden");
-        }, 3500);
-
       } catch (error) {
         console.error("Send whisper error:", error);
-        statusEl.textContent = "Failed to send: " + error.message;
-        statusEl.className = "mb-4 p-3 rounded-xl text-xs text-center font-medium bg-red-500/20 text-red-300 border border-red-500/30";
+
+        statusEl.textContent = "Failed to send whisper. Please try again.";
         statusEl.classList.remove("hidden");
+        statusEl.classList.add("border-red-500/30", "bg-red-500/10", "text-red-300");
+      } finally {
         sendBtn.disabled = false;
         sendBtn.textContent = "Send Whisper";
       }
