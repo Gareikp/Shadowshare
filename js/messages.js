@@ -30,15 +30,12 @@ document.addEventListener("DOMContentLoaded", () => {
       userEmailDisplay.textContent = user.email;
     }
 
-    const basePath = window.location.pathname.substring(
-      0,
-      window.location.pathname.lastIndexOf("/")
-    ) || "";
-
-    const userUrl = `${window.location.origin}${basePath}/send.html?to=${user.uid}`;
+    // Vercel-safe root path: https://your-domain/send.html?to=USER_ID
+    const userUrl = new URL("/send.html", window.location.origin);
+    userUrl.searchParams.set("to", user.uid);
 
     if (shadowLinkDisplay) {
-      shadowLinkDisplay.textContent = userUrl;
+      shadowLinkDisplay.textContent = userUrl.toString();
     }
 
     if (copyBtn && shadowLinkDisplay) {
@@ -46,10 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           await navigator.clipboard.writeText(shadowLinkDisplay.textContent.trim());
 
-          if (copyText) {
-            copyText.textContent = "Copied!";
-          }
-
+          if (copyText) copyText.textContent = "Copied!";
           copyBtn.classList.add("bg-emerald-600");
 
           if (toast) {
@@ -68,17 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
           }, 2000);
         } catch (error) {
           console.error("Copy failed:", error);
-
-          if (toast) {
-            toast.textContent = "Copy failed";
-            toast.classList.remove("translate-y-20", "opacity-0", "pointer-events-none");
-            toast.classList.add("translate-y-0", "opacity-100");
-
-            setTimeout(() => {
-              toast.classList.remove("translate-y-0", "opacity-100");
-              toast.classList.add("translate-y-20", "opacity-0", "pointer-events-none");
-            }, 2500);
-          }
         }
       };
     }
