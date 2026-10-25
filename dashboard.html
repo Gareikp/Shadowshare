@@ -4,11 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Shadowbox | ShadowShare</title>
-  <!-- Tailwind CSS CDN -->
+
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <!-- Google Fonts Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -46,15 +44,18 @@
       font-family: 'Inter', sans-serif;
       overflow-x: hidden;
     }
+
     .text-gradient {
       background: linear-gradient(135deg, #A78BFA 0%, #38BDF8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
+
     .btn-gradient {
       background: linear-gradient(135deg, #7C3AED 0%, #2563EB 100%);
       transition: all 0.3s ease;
     }
+
     .btn-gradient:hover {
       background: linear-gradient(135deg, #6D28D9 0%, #1D4ED8 100%);
       box-shadow: 0 0 25px rgba(124, 58, 237, 0.6);
@@ -62,14 +63,11 @@
     }
   </style>
 </head>
-<body class="bg-midnight-900 text-gray-100 min-h-screen flex flex-col justify-between selection:bg-purpleGlow selection:text-white">
 
-  <!-- NAVBAR -->
+<body class="bg-midnight-900 text-gray-100 min-h-screen flex flex-col justify-between selection:bg-purpleGlow selection:text-white">
   <nav class="sticky top-0 z-50 bg-midnight-900/80 backdrop-blur-md border-b border-white/10">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
-        
-        <!-- Logo -->
         <a href="index.html" class="flex items-center gap-2.5 group">
           <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center shadow-glow-purple group-hover:scale-105 transition-transform">
             <i class="fas fa-moon text-white text-lg"></i>
@@ -77,7 +75,6 @@
           <span class="font-bold text-xl tracking-tight text-white group-hover:text-purple-300 transition-colors">ShadowShare</span>
         </a>
 
-        <!-- User Actions / Sign Out -->
         <div class="flex items-center gap-4">
           <span id="user-email-display" class="hidden sm:inline-block text-xs text-gray-400 font-mono"></span>
           <a href="#" id="logout-btn" class="bg-midnight-800 hover:bg-midnight-700 border border-white/10 text-gray-200 px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 shadow-sm">
@@ -85,16 +82,12 @@
             <span>Sign Out</span>
           </a>
         </div>
-
       </div>
     </div>
   </nav>
 
-  <!-- MAIN CONTENT -->
   <main class="flex-grow py-10 px-4 sm:px-6">
     <div class="max-w-3xl mx-auto space-y-8">
-
-      <!-- Welcome Header -->
       <div class="text-center">
         <h1 class="text-3xl sm:text-4xl font-extrabold text-white mb-2">
           Your <span class="text-gradient">Shadowbox</span>
@@ -102,7 +95,6 @@
         <p class="text-sm text-gray-400">Incoming whispers from the shadows will land right here.</p>
       </div>
 
-      <!-- Shadow Link Card -->
       <div class="bg-midnight-800/80 backdrop-blur-md p-6 rounded-3xl border border-white/10 shadow-xl relative overflow-hidden">
         <div class="absolute -right-10 -top-10 w-32 h-32 bg-purple-600/10 rounded-full blur-2xl pointer-events-none"></div>
 
@@ -118,6 +110,7 @@
           <code id="shadow-link-display" class="text-purple-300 font-mono text-xs sm:text-sm truncate select-all pl-1">
             shadowshare.site/loading...
           </code>
+
           <button id="copyShadowLink" type="button" class="btn-gradient text-white font-medium text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shrink-0 shadow-md">
             <i class="fas fa-copy"></i>
             <span id="copyText">Copy Link</span>
@@ -125,7 +118,6 @@
         </div>
       </div>
 
-      <!-- Messages Container Section -->
       <div class="bg-midnight-800/50 backdrop-blur-md border border-white/10 p-6 sm:p-8 rounded-3xl shadow-xl">
         <div class="flex items-center justify-between mb-6 border-b border-white/10 pb-4">
           <h2 class="text-xl font-bold text-white flex items-center gap-2.5">
@@ -135,7 +127,6 @@
           <span id="messageCount" class="text-xs bg-purple-500/20 text-purple-300 border border-purple-500/30 px-3 py-1 rounded-full font-semibold">0 Whispers</span>
         </div>
 
-        <!-- Messages List Wrapper -->
         <div id="messages-container" class="space-y-4">
           <div id="loading-text" class="text-center py-12">
             <div class="w-12 h-12 rounded-2xl bg-midnight-700 border border-white/10 flex items-center justify-center text-gray-400 mx-auto mb-4 animate-pulse">
@@ -145,18 +136,15 @@
           </div>
         </div>
       </div>
-
     </div>
   </main>
 
-  <!-- FOOTER -->
   <footer class="bg-midnight-900 border-t border-white/10 py-8 text-center">
     <div class="max-w-6xl mx-auto px-4">
       <p class="text-xs text-gray-500">&copy; <span id="current-year">2026</span> ShadowShare. All rights reserved.</p>
     </div>
   </footer>
 
-  <!-- TOAST NOTIFICATION -->
   <div id="toast" class="fixed bottom-6 right-6 transform translate-y-20 opacity-0 pointer-events-none bg-midnight-800 border border-purple-500/50 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 z-50 transition-all duration-300">
     <div class="w-7 h-7 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs">
       <i class="fas fa-check"></i>
@@ -168,7 +156,6 @@
     document.getElementById('current-year').textContent = new Date().getFullYear();
   </script>
 
-  <!-- Dashboard Logic Script with Cache-Buster -->
   <script type="module" src="./js/messages.js?v=20261024"></script>
 </body>
 </html>
