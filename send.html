@@ -43,6 +43,7 @@
     <textarea
       id="messageInput"
       rows="5"
+      maxlength="500"
       class="w-full rounded-2xl border border-white/10 bg-midnight-900 text-gray-100 placeholder-gray-500 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
       placeholder="Write something honest..."
     ></textarea>
@@ -50,7 +51,7 @@
     <button
       id="sendBtn"
       type="button"
-      class="mt-5 w-full bg-gradient-to-r from-purple-600 to-indigo-500 text-white font-semibold py-3 rounded-2xl shadow-lg transition hover:brightness-110 active:scale-[0.99]"
+      class="mt-5 w-full bg-gradient-to-r from-purple-600 to-indigo-500 text-white font-semibold py-3 rounded-2xl shadow-lg transition hover:brightness-110 active:scale-[0.99] disabled:opacity-50"
     >
       Send Whisper
     </button>
@@ -61,14 +62,13 @@
     import {
       addDoc,
       collection,
-      getDocs,
-      query,
-      where,
+      doc,
+      getDoc,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 
     const params = new URLSearchParams(window.location.search);
-    const recipientIdentifier = params.get("to");
+    const recipientIdentifier = (params.get("to") || "").trim().toLowerCase();
 
     const statusEl = document.getElementById("status");
     const sendBtn = document.getElementById("sendBtn");
@@ -76,34 +76,37 @@
 
     let recipientUid = null;
 
+    function showStatus(message, type) {
+      const styles = {
+        error: ["border-red-500/30", "bg-red-500/10", "text-red-300"],
+        warn: ["border-amber-500/30", "bg-amber-500/10", "text-amber-300"],
+        ok: ["border-emerald-500/30", "bg-emerald-500/10", "text-emerald-300"]
+      };
+      statusEl.className =
+        "mb-4 rounded-xl border px-3 py-3 text-center text-xs " + styles[type].join(" ");
+      statusEl.textContent = message;
+    }
+
     async function initRecipient() {
       if (!recipientIdentifier) {
-        statusEl.textContent = "Invalid link: no recipient was found.";
-        statusEl.classList.remove("hidden");
-        statusEl.classList.add("border-red-500/30", "bg-red-500/10", "text-red-300");
+        showStatus("Invalid link: no recipient was found.", "error");
         sendBtn.disabled = true;
         return false;
       }
 
       try {
-        // Query Firestore 'users' collection for the username
-        const usersRef = collection(db, "users");
-        const q = query(usersRef, where("username", "==", recipientIdentifier));
-        const querySnapshot = await getDocs(q);
-
-        if (!querySnapshot.empty) {
-          // Found matching document! The document ID is their UID.
-          recipientUid = querySnapshot.docs[0].id;
-        } else {
-          // Fallback if raw UID was passed directly
-          recipientUid = recipientIdentifier;
+        const snap = await getDoc(doc(db, "usernames", recipientIdentifier));
+        if (snap.exists()) {
+          recipientUid = snap.data().uid;
+          return true;
         }
-        return true;
       } catch (err) {
         console.error("Error resolving recipient:", err);
-        recipientUid = recipientIdentifier;
-        return true;
       }
+
+      showStatus("This Shadowbox doesn't exist.", "error");
+      sendBtn.disabled = true;
+      return false;
     }
 
     const isValid = await initRecipient();
@@ -113,9 +116,7 @@
         const text = input.value.trim();
 
         if (!text) {
-          statusEl.textContent = "Please write a message first.";
-          statusEl.classList.remove("hidden");
-          statusEl.classList.add("border-amber-500/30", "bg-amber-500/10", "text-amber-300");
+          showStatus("Please write a message first.", "warn");
           return;
         }
 
@@ -124,7 +125,7 @@
           sendBtn.textContent = "Sending...";
           statusEl.classList.add("hidden");
 
-          const timeoutPromise = new Promise((_, reject) => 
+          const timeoutPromise = new Promise((_, reject) =>
             setTimeout(() => reject(new Error("Network timeout: Firebase took too long to respond.")), 6000)
           );
 
@@ -140,21 +141,11 @@
 
           await Promise.race([savePromise, timeoutPromise]);
 
-          alert("✨ Whisper sent successfully!");
-
-          statusEl.textContent = "✨ Whisper sent successfully.";
-          statusEl.classList.remove("hidden");
-          statusEl.classList.add("border-emerald-500/30", "bg-emerald-500/10", "text-emerald-300");
-
+          showStatus("✨ Whisper sent successfully.", "ok");
           input.value = "";
         } catch (error) {
           console.error("Send whisper error:", error);
-          
-          alert("SEND FAILED:\n" + (error.message || error));
-
-          statusEl.textContent = "Failed: " + (error.message || "Please try again.");
-          statusEl.classList.remove("hidden");
-          statusEl.classList.add("border-red-500/30", "bg-red-500/10", "text-red-300");
+          showStatus("Failed: " + (error.message || "Please try again."), "error");
         } finally {
           sendBtn.disabled = false;
           sendBtn.textContent = "Send Whisper";
