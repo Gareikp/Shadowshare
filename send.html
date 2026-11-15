@@ -61,22 +61,55 @@
     import {
       addDoc,
       collection,
+      getDocs,
+      query,
+      where,
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 
     const params = new URLSearchParams(window.location.search);
-    const recipientUid = params.get("to");
+    const recipientIdentifier = params.get("to");
 
     const statusEl = document.getElementById("status");
     const sendBtn = document.getElementById("sendBtn");
     const input = document.getElementById("messageInput");
 
-    if (!recipientUid) {
-      statusEl.textContent = "Invalid link: no recipient was found.";
-      statusEl.classList.remove("hidden");
-      statusEl.classList.add("border-red-500/30", "bg-red-500/10", "text-red-300");
-      sendBtn.disabled = true;
-    } else {
+    let recipientUid = null;
+
+    async function initRecipient() {
+      if (!recipientIdentifier) {
+        statusEl.textContent = "Invalid link: no recipient was found.";
+        statusEl.classList.remove("hidden");
+        statusEl.classList.add("border-red-500/30", "bg-red-500/10", "text-red-300");
+        sendBtn.disabled = true;
+        return false;
+      }
+
+      try {
+        // Search Firestore 'users' collection to check if identifier is a username
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("username", "==", recipientIdentifier));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          // Found matching user document! The document ID is their UID.
+          recipientUid = querySnapshot.docs[0].id;
+        } else {
+          // Fallback: If it's a raw UID link, use it directly
+          recipientUid = recipientIdentifier;
+        }
+        return true;
+      } catch (err) {
+        console.error("Error resolving recipient:", err);
+        recipientUid = recipientIdentifier; // Fallback
+        return true;
+      }
+    }
+
+    // Initialize recipient resolution on load
+    const isValid = await initRecipient();
+
+    if (isValid) {
       sendBtn.addEventListener("click", async () => {
         const text = input.value.trim();
 
