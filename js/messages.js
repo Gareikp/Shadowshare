@@ -1,3 +1,4 @@
+
 import { auth, db } from "./firebase-config.js";
 import {
   onAuthStateChanged,
@@ -7,9 +8,7 @@ import {
   collection,
   query,
   where,
-  getDocs,
-  doc,
-  getDoc
+  getDocs
 } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -32,20 +31,8 @@ document.addEventListener("DOMContentLoaded", () => {
       userEmailDisplay.textContent = user.email;
     }
 
-    // Fetch the user's clean username from Firestore (fallback to UID if not found)
-    let handle = user.uid;
-    try {
-      const userDocRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userDocRef);
-      if (userSnap.exists() && userSnap.data().username) {
-        handle = userSnap.data().username;
-      }
-    } catch (err) {
-      console.error("Error fetching user username handle:", err);
-    }
-
     const userUrl = new URL("/send.html", window.location.origin);
-    userUrl.searchParams.set("to", handle);
+    userUrl.searchParams.set("to", user.uid);
 
     if (shadowLinkDisplay) {
       shadowLinkDisplay.textContent = userUrl.toString();
